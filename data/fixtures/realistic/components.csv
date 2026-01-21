@@ -1,0 +1,9 @@
+id,name,category,base_cost,spend_year,recurring,interval_years,include
+roof_replace,Roof Replacement,Roof,240000,2032,Y,25,Y
+asphalt_resurface,Asphalt Resurface,Paving,110000,2026,Y,6,Y
+exterior_paint,Exterior Paint,Paint,38000,2027,Y,7,Y
+pool_resurface,Pool Resurface,Pool,32000,2030,Y,10,Y
+lighting_upgrade,Lighting Upgrade,Electrical,16000,2029,N,,Y
+tree_pruning,Tree Pruning,Landscaping,12000,2025,Y,3,Y
+fence_replace,Fence Replacement,Fence,55000,2033,N,,Y
+security_cameras,Security Cameras,Security,22000,2028,N,,N

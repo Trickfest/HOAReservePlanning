@@ -1,0 +1,6 @@
+scenario: missing_columns_contributions
+expect:
+  validation:
+    errors:
+      - 'missing_columns_contributions.csv missing columns: contribution'
+    warnings: []

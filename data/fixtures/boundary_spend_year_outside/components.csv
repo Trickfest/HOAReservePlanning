@@ -1,0 +1,3 @@
+id,name,category,base_cost,spend_year,recurring,interval_years,include
+old_gate,Old Gate Replacement,Security,1000,2024,N,,Y
+paint,Exterior Paint,Paint,50,2026,N,,Y

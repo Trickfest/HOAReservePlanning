@@ -1,0 +1,4 @@
+id,name,category,base_cost,spend_year,recurring,interval_years,include
+paving_seal,Paving Sealcoat,Paving,200,2026,Y,2,Y
+entry_gate,Entry Gate Replacement,Security,500,2027,N,,Y
+excluded_item,Excluded Example,Misc,999,2026,N,,N

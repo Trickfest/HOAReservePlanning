@@ -1,0 +1,2 @@
+id,name,category,base_cost,spend_year,recurring,interval_years,include
+roof_replace,Roof Replacement,Roof,100000,2025,Y,,Y

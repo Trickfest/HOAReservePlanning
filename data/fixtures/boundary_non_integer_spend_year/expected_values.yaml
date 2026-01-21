@@ -1,0 +1,6 @@
+scenario: non_integer_spend_year
+expect:
+  validation:
+    errors:
+      - 'components.csv row 2: spend_year must be an integer'
+    warnings: []

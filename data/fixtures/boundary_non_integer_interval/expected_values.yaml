@@ -1,0 +1,6 @@
+scenario: non_integer_interval
+expect:
+  validation:
+    errors:
+      - 'components.csv row 2: interval_years must be an integer'
+    warnings: []

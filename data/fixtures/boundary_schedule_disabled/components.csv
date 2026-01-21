@@ -1,0 +1,3 @@
+id,name,category,base_cost,spend_year,recurring,interval_years,include
+roof_replace,Roof Replacement,Roof,200000,2026,Y,10,Y
+lighting_upgrade,Lighting Upgrade,Electrical,15000,2025,N,,Y

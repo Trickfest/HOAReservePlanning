@@ -1,0 +1,2 @@
+id,name,category,base_cost,spend_year,recurring,interval_years,include
+bad_year,Bad Year,General,100,202A,N,,Y

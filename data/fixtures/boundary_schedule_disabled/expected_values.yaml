@@ -1,0 +1,31 @@
+scenario: schedule_disabled
+expect:
+  validation:
+    errors: []
+    warnings: []
+  workbook:
+    values:
+      - sheet: Forecast
+        cell: C2
+        equals: 100
+    formulas:
+      - sheet: Forecast
+        cell: B2
+        equals: '=Inputs!$B$3'
+      - sheet: Forecast
+        cell: E2
+        equals: '=SUMIFS(Schedule!$D$2:$D$51,Schedule!$A$2:$A$51,A2)'
+      - sheet: Dashboard
+        cell: B4
+        equals: '=Forecast!$A$4'
+  model:
+    forecast:
+      - year: 2025
+        end_balance: 600
+      - year: 2027
+        end_balance: 800
+    counts:
+      schedule_items: 0
+      negative_balance_years: 0
+      zero_expense_years: 3
+      forecast_years: 3

@@ -1,0 +1,6 @@
+scenario: missing_interval
+expect:
+  validation:
+    errors:
+      - 'components.csv row 2: interval_years required for recurring items'
+    warnings: []

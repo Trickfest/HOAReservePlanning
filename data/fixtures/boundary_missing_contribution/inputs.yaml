@@ -1,0 +1,11 @@
+starting_year: 2025
+beginning_reserve_balance: 0
+inflation_rate: 0.0
+investment_return_rate: 0.0
+FEATURES:
+  forecast_years: 3
+  enable_checks: true
+  enable_dashboard: true
+  enable_schedule_expansion: true
+  max_components_rows: 10
+  max_schedule_rows: 50

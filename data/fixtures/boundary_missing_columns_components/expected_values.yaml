@@ -1,0 +1,6 @@
+scenario: missing_columns_components
+expect:
+  validation:
+    errors:
+      - 'components.csv missing columns: include'
+    warnings: []

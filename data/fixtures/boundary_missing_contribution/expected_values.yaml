@@ -1,0 +1,6 @@
+scenario: missing_contribution
+expect:
+  validation:
+    errors:
+      - 'Missing contributions for years: 2026'
+    warnings: []

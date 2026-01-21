@@ -1,0 +1,11 @@
+id,name,category,base_cost,spend_year,recurring,interval_years,include
+roof_replace,Roof Replacement,Roof,250000,2035,Y,25,Y
+asphalt_resurface,Asphalt Resurface,Paving,120000,2028,Y,7,Y
+exterior_paint,Exterior Paint,Paint,40000,2027,Y,7,Y
+pool_resurface,Pool Resurface,Pool,35000,2030,Y,10,Y
+clubhouse_hvac,Clubhouse HVAC,HVAC,18000,2029,Y,15,Y
+lighting_upgrade,Lighting Upgrade,Electrical,15000,2026,N,,Y
+fence_replacement,Fence Replacement,Fence,60000,2032,Y,20,Y
+irrigation_refresh,Irrigation Refresh,Landscaping,22000,2028,Y,8,Y
+elevator_modernization,Elevator Modernization,Elevator,80000,2033,Y,20,Y
+entry_gate,Entry Gate Replacement,Security,25000,2029,Y,12,N

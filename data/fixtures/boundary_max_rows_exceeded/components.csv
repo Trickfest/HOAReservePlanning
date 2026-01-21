@@ -1,0 +1,2 @@
+id,name,category,base_cost,spend_year,recurring,interval_years,include
+annual_item,Annual Item,General,10,2025,Y,1,Y

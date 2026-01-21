@@ -1,0 +1,11 @@
+starting_year: 2025
+beginning_reserve_balance: 250000
+inflation_rate: 0.03
+investment_return_rate: 0.02
+FEATURES:
+  forecast_years: 40
+  enable_checks: true
+  enable_dashboard: true
+  enable_schedule_expansion: true
+  max_components_rows: 500
+  max_schedule_rows: 10000

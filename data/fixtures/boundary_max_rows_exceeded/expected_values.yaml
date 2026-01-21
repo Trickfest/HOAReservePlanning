@@ -1,0 +1,6 @@
+scenario: max_rows_exceeded
+expect:
+  validation:
+    errors:
+      - 'Schedule rows 3 exceed max_schedule_rows 2'
+    warnings: []

@@ -1,0 +1,7 @@
+scenario: invalid_flags
+expect:
+  validation:
+    errors:
+      - 'components.csv row 2: recurring must be Y or N'
+      - 'components.csv row 2: include must be Y or N'
+    warnings: []

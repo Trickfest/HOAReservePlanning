@@ -1,0 +1,41 @@
+scenario: spend_year_outside
+expect:
+  validation:
+    errors: []
+    warnings:
+      - 'components.csv row 2: spend_year 2024 outside forecast window'
+  workbook:
+    values:
+      - sheet: Forecast
+        cell: C2
+        equals: 100
+    formulas:
+      - sheet: Forecast
+        cell: B2
+        equals: '=Inputs!$B$3'
+      - sheet: Forecast
+        cell: E2
+        equals: '=SUMIFS(Schedule!$D$2:$D$51,Schedule!$A$2:$A$51,A2)'
+      - sheet: Schedule
+        cell: D2
+        equals: '=Components!$D$3*(1+Inputs!$B$4)^(A2-Inputs!$B$2)'
+      - sheet: Dashboard
+        cell: B4
+        equals: '=Forecast!$A$5'
+  model:
+    schedule:
+      - year: 2026
+        component_id: paint
+        nominal_expense: 50
+    forecast:
+      - year: 2025
+        end_balance: 100
+      - year: 2026
+        end_balance: 150
+      - year: 2028
+        end_balance: 350
+    counts:
+      schedule_items: 1
+      negative_balance_years: 0
+      zero_expense_years: 3
+      forecast_years: 4

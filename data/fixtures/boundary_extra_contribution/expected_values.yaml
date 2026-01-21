@@ -1,0 +1,32 @@
+scenario: extra_contribution
+expect:
+  validation:
+    errors: []
+    warnings:
+      - 'Contribution years outside forecast window: 2027'
+  workbook:
+    values:
+      - sheet: Forecast
+        cell: C2
+        equals: 100
+    formulas:
+      - sheet: Forecast
+        cell: B2
+        equals: '=Inputs!$B$3'
+      - sheet: Forecast
+        cell: E2
+        equals: '=SUMIFS(Schedule!$D$2:$D$51,Schedule!$A$2:$A$51,A2)'
+      - sheet: Dashboard
+        cell: B4
+        equals: '=Forecast!$A$3'
+  model:
+    forecast:
+      - year: 2025
+        end_balance: 100
+      - year: 2026
+        end_balance: 200
+    counts:
+      schedule_items: 0
+      negative_balance_years: 0
+      zero_expense_years: 2
+      forecast_years: 2

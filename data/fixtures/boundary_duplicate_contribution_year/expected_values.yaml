@@ -1,0 +1,32 @@
+scenario: duplicate_contribution_year
+expect:
+  validation:
+    errors: []
+    warnings:
+      - 'Duplicate contribution years: 2025'
+  workbook:
+    values:
+      - sheet: Forecast
+        cell: C2
+        equals: 150
+    formulas:
+      - sheet: Forecast
+        cell: B2
+        equals: '=Inputs!$B$3'
+      - sheet: Forecast
+        cell: E2
+        equals: '=SUMIFS(Schedule!$D$2:$D$21,Schedule!$A$2:$A$21,A2)'
+      - sheet: Dashboard
+        cell: B4
+        equals: '=Forecast!$A$3'
+  model:
+    forecast:
+      - year: 2025
+        end_balance: 150
+      - year: 2026
+        end_balance: 350
+    counts:
+      schedule_items: 0
+      negative_balance_years: 0
+      zero_expense_years: 2
+      forecast_years: 2

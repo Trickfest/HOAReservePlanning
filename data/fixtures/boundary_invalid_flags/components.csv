@@ -1,0 +1,2 @@
+id,name,category,base_cost,spend_year,recurring,interval_years,include
+bad_flags,Bad Flags,General,100,2025,maybe,,yes

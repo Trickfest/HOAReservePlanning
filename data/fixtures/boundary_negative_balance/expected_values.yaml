@@ -1,0 +1,38 @@
+scenario: negative_balance
+expect:
+  validation:
+    errors: []
+    warnings: []
+  workbook:
+    values:
+      - sheet: Forecast
+        cell: C2
+        equals: 0
+    formulas:
+      - sheet: Forecast
+        cell: B2
+        equals: '=Inputs!$B$3'
+      - sheet: Forecast
+        cell: E2
+        equals: '=SUMIFS(Schedule!$D$2:$D$51,Schedule!$A$2:$A$51,A2)'
+      - sheet: Schedule
+        cell: D2
+        equals: '=Components!$D$2*(1+Inputs!$B$4)^(A2-Inputs!$B$2)'
+      - sheet: Dashboard
+        cell: B4
+        equals: '=Forecast!$A$4'
+  model:
+    schedule:
+      - year: 2025
+        component_id: major_repair
+        nominal_expense: 2000
+    forecast:
+      - year: 2025
+        end_balance: -1000
+      - year: 2027
+        end_balance: -1000
+    counts:
+      schedule_items: 1
+      negative_balance_years: 3
+      zero_expense_years: 2
+      forecast_years: 3
