@@ -18,6 +18,19 @@ Workbook output:
 dist/HOA_Reserve_Planning_<scenario>.xlsx
 ```
 
+## Funding metrics in the Forecast sheet
+
+The Forecast tab now includes two funding metrics, calculated with Excel formulas:
+
+- `percent_funded`: beginning-of-year balance divided by the fully funded balance.
+- `coverage_5yr`: beginning-of-year balance divided by the sum of expenses for the next 5 years.
+  - Near the end of the forecast, the window shrinks to the remaining years.
+
+Fully funded balance assumptions:
+- Recurring components fund linearly across their interval (`interval_years`).
+- Non-recurring components fund linearly from the starting year to their `spend_year`.
+- Costs are inflated to the forecast year using the inflation rate.
+
 ## Run a build for a specific scenario
 
 ```bash
@@ -83,6 +96,7 @@ Additional boundary fixtures live under `data/fixtures/boundary_*`.
 
 - Duplicate contribution years are reported as warnings; the last value wins.
 - If expanded schedule rows exceed `FEATURES.max_schedule_rows`, validation fails so formulas stay in-bounds.
+- Funding metric formulas return blank when the denominator is zero (no fully funded target or no expenses in the 5-year window).
 
 ## Tests
 

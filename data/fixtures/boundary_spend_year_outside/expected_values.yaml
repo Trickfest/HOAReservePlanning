@@ -3,37 +3,43 @@ expect:
   validation:
     errors: []
     warnings:
-      - 'components.csv row 2: spend_year 2024 outside forecast window'
+    - 'components.csv row 2: spend_year 2024 outside forecast window'
   workbook:
     values:
-      - sheet: Forecast
-        cell: C2
-        equals: 100
+    - sheet: Forecast
+      cell: C2
+      equals: 100
     formulas:
-      - sheet: Forecast
-        cell: B2
-        equals: '=Inputs!$B$3'
-      - sheet: Forecast
-        cell: E2
-        equals: '=SUMIFS(Schedule!$D$2:$D$51,Schedule!$A$2:$A$51,A2)'
-      - sheet: Schedule
-        cell: D2
-        equals: '=Components!$D$3*(1+Inputs!$B$4)^(A2-Inputs!$B$2)'
-      - sheet: Dashboard
-        cell: B4
-        equals: '=Forecast!$A$5'
+    - sheet: Forecast
+      cell: B2
+      equals: =Inputs!$B$3
+    - sheet: Forecast
+      cell: E2
+      equals: =SUMIFS(Schedule!$D$2:$D$51,Schedule!$A$2:$A$51,A2)
+    - sheet: Schedule
+      cell: D2
+      equals: =Components!$D$3*(1+Inputs!$B$4)^(A2-Inputs!$B$2)
+    - sheet: Dashboard
+      cell: B4
+      equals: =Forecast!$A$5
+    - sheet: Forecast
+      cell: G2
+      equals: =IF((1+Inputs!$B$4)^(A2-Inputs!$B$2)*(SUMPRODUCT(--(Components!$H$2:$H$21="Y"),--(Components!$F$2:$F$21="Y"),Components!$D$2:$D$21,IF(Components!$G$2:$G$21<=0,0,IF(Components!$G$2:$G$21-IF(A2<=Components!$E$2:$E$21,Components!$E$2:$E$21-A2,Components!$E$2:$E$21+CEILING((A2-Components!$E$2:$E$21)/IF(Components!$G$2:$G$21>0,Components!$G$2:$G$21,1),1)*Components!$G$2:$G$21-A2)<=0,0,Components!$G$2:$G$21-IF(A2<=Components!$E$2:$E$21,Components!$E$2:$E$21-A2,Components!$E$2:$E$21+CEILING((A2-Components!$E$2:$E$21)/IF(Components!$G$2:$G$21>0,Components!$G$2:$G$21,1),1)*Components!$G$2:$G$21-A2)/Components!$G$2:$G$21)))+SUMPRODUCT(--(Components!$H$2:$H$21="Y"),--(Components!$F$2:$F$21<>"Y"),Components!$D$2:$D$21,IF(A2>Components!$E$2:$E$21,0,IF(Components!$E$2:$E$21-Inputs!$B$2<=0,1,(A2-Inputs!$B$2)/(Components!$E$2:$E$21-Inputs!$B$2)))))=0,"",B2/((1+Inputs!$B$4)^(A2-Inputs!$B$2)*(SUMPRODUCT(--(Components!$H$2:$H$21="Y"),--(Components!$F$2:$F$21="Y"),Components!$D$2:$D$21,IF(Components!$G$2:$G$21<=0,0,IF(Components!$G$2:$G$21-IF(A2<=Components!$E$2:$E$21,Components!$E$2:$E$21-A2,Components!$E$2:$E$21+CEILING((A2-Components!$E$2:$E$21)/IF(Components!$G$2:$G$21>0,Components!$G$2:$G$21,1),1)*Components!$G$2:$G$21-A2)<=0,0,Components!$G$2:$G$21-IF(A2<=Components!$E$2:$E$21,Components!$E$2:$E$21-A2,Components!$E$2:$E$21+CEILING((A2-Components!$E$2:$E$21)/IF(Components!$G$2:$G$21>0,Components!$G$2:$G$21,1),1)*Components!$G$2:$G$21-A2)/Components!$G$2:$G$21)))+SUMPRODUCT(--(Components!$H$2:$H$21="Y"),--(Components!$F$2:$F$21<>"Y"),Components!$D$2:$D$21,IF(A2>Components!$E$2:$E$21,0,IF(Components!$E$2:$E$21-Inputs!$B$2<=0,1,(A2-Inputs!$B$2)/(Components!$E$2:$E$21-Inputs!$B$2)))))))
+    - sheet: Forecast
+      cell: H2
+      equals: =IF(SUM(E2:INDEX($E$2:$E$5,MIN(2+4,5)-1))=0,"",B2/SUM(E2:INDEX($E$2:$E$5,MIN(2+4,5)-1)))
   model:
     schedule:
-      - year: 2026
-        component_id: paint
-        nominal_expense: 50
+    - year: 2026
+      component_id: paint
+      nominal_expense: 50
     forecast:
-      - year: 2025
-        end_balance: 100
-      - year: 2026
-        end_balance: 150
-      - year: 2028
-        end_balance: 350
+    - year: 2025
+      end_balance: 100
+    - year: 2026
+      end_balance: 150
+    - year: 2028
+      end_balance: 350
     counts:
       schedule_items: 1
       negative_balance_years: 0

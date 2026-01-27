@@ -8,3 +8,6 @@ python -m reserve validate --scenario missing_columns_components --data-dir data
 
 Expected validation error:
 - `components.csv missing columns: include`
+
+Funding metrics:
+- Not applicable because validation fails and no workbook is generated.

@@ -226,6 +226,8 @@ def _write_forecast_sheet(ws, inputs: Inputs, contributions: Dict[int, float]) -
         "interest",
         "expenses",
         "end_balance",
+        "percent_funded",
+        "coverage_5yr",
     ]
     ws.append(headers)
     _style_header(ws, len(headers))
@@ -233,7 +235,18 @@ def _write_forecast_sheet(ws, inputs: Inputs, contributions: Dict[int, float]) -
     start_year = inputs.starting_year
     forecast_years = inputs.forecast_years
     max_schedule_rows = int(inputs.features.get("max_schedule_rows", 10000))
+    max_components_rows = int(inputs.features.get("max_components_rows", 500))
     schedule_end_row = 1 + max_schedule_rows
+    components_end_row = 1 + max_components_rows
+
+    start_year_cell = f"Inputs!$B${INPUT_ROWS['starting_year']}"
+    inflation_cell = f"Inputs!$B${INPUT_ROWS['inflation_rate']}"
+
+    base_cost_range = f"Components!$D$2:$D${components_end_row}"
+    spend_year_range = f"Components!$E$2:$E${components_end_row}"
+    recurring_range = f"Components!$F$2:$F${components_end_row}"
+    interval_range = f"Components!$G$2:$G${components_end_row}"
+    include_range = f"Components!$H$2:$H${components_end_row}"
 
     for offset in range(forecast_years):
         row = 2 + offset
@@ -262,12 +275,56 @@ def _write_forecast_sheet(ws, inputs: Inputs, contributions: Dict[int, float]) -
         end_formula = f"=B{row}+C{row}+D{row}-E{row}"
         ws.cell(row=row, column=6, value=end_formula)
 
+        year_cell = f"A{row}"
+        inflation_factor = f"(1+{inflation_cell})^({year_cell}-{start_year_cell})"
+
+        years_to_next = (
+            f"IF({year_cell}<={spend_year_range},"
+            f"{spend_year_range}-{year_cell},"
+            f"{spend_year_range}+CEILING(({year_cell}-{spend_year_range})/"
+            f"IF({interval_range}>0,{interval_range},1),1)"
+            f"*{interval_range}-{year_cell})"
+        )
+        recurring_age = f"{interval_range}-{years_to_next}"
+        recurring_fraction = (
+            f"IF({interval_range}<=0,0,"
+            f"IF({recurring_age}<=0,0,{recurring_age}/{interval_range}))"
+        )
+
+        nonrecurring_fraction = (
+            f"IF({year_cell}>{spend_year_range},0,"
+            f"IF({spend_year_range}-{start_year_cell}<=0,1,"
+            f"({year_cell}-{start_year_cell})/({spend_year_range}-{start_year_cell})))"
+        )
+
+        sum_recurring = (
+            f"SUMPRODUCT(--({include_range}=\"Y\"),--({recurring_range}=\"Y\"),"
+            f"{base_cost_range},{recurring_fraction})"
+        )
+        sum_nonrecurring = (
+            f"SUMPRODUCT(--({include_range}=\"Y\"),--({recurring_range}<>\"Y\"),"
+            f"{base_cost_range},{nonrecurring_fraction})"
+        )
+
+        fully_funded = f"{inflation_factor}*({sum_recurring}+{sum_nonrecurring})"
+        percent_funded_formula = f"=IF({fully_funded}=0,\"\",B{row}/({fully_funded}))"
+        ws.cell(row=row, column=7, value=percent_funded_formula)
+
+        coverage_sum = (
+            f"SUM(E{row}:INDEX($E$2:$E${1 + forecast_years},"
+            f"MIN({row}+4,{1 + forecast_years})-1))"
+        )
+        coverage_formula = f"=IF({coverage_sum}=0,\"\",B{row}/{coverage_sum})"
+        ws.cell(row=row, column=8, value=coverage_formula)
+
     for row in range(2, 2 + forecast_years):
         for col in range(2, 7):
             ws.cell(row=row, column=col).number_format = "#,##0"
+        ws.cell(row=row, column=7).number_format = "0.00%"
+        ws.cell(row=row, column=8).number_format = "0.00"
 
     ws.freeze_panes = "A2"
-    widths = [8, 18, 16, 16, 16, 18]
+    widths = [8, 18, 16, 16, 16, 18, 16, 14]
     for idx, width in enumerate(widths, start=1):
         ws.column_dimensions[chr(64 + idx)].width = width
 

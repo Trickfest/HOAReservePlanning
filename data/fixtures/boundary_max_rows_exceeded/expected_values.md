@@ -8,3 +8,6 @@ python -m reserve validate --scenario max_rows_exceeded --data-dir data/fixtures
 
 Expected validation error:
 - `Schedule rows 3 exceed max_schedule_rows 2`
+
+Funding metrics:
+- Not applicable because validation fails and no workbook is generated.

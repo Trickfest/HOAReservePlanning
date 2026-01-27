@@ -8,3 +8,6 @@ python -m reserve validate --scenario non_integer_spend_year --data-dir data/fix
 
 Expected validation error:
 - `components.csv row 2: spend_year must be an integer`
+
+Funding metrics:
+- Not applicable because validation fails and no workbook is generated.

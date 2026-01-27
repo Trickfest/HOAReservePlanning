@@ -19,6 +19,10 @@ Forecast checks:
 - `F2` (2025 end balance) = 150
 - `F3` (2026 end balance) = 350
 
+Funding metrics (Sheet: Forecast):
+- `G` (percent_funded) = beginning balance / fully funded balance (formula-driven).
+- `H` (coverage_5yr) = beginning balance / sum of expenses for the next 5 years (formula-driven).
+
 Checks:
 - `B2` (negative balance years) = 0
 - `B3` (zero expense years) = 2

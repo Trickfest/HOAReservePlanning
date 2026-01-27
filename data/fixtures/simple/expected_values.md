@@ -18,6 +18,10 @@ Forecast checks (Sheet: Forecast):
 - `F5` (2028 end balance) = 1864.4 (displayed as 1,864)
 - `F6` (2029 end balance) = 2350.84 (displayed as 2,351)
 
+Funding metrics (Sheet: Forecast):
+- `G` (percent_funded) = beginning balance / fully funded balance (formula-driven).
+- `H` (coverage_5yr) = beginning balance / sum of expenses for the next 5 years (formula-driven).
+
 Checks (Sheet: Checks):
 - `B2` (negative balance years) = 0
 - `B3` (zero expense years) = 2

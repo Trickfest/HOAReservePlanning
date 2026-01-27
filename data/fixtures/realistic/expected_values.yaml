@@ -5,44 +5,50 @@ expect:
     warnings: []
   workbook:
     values:
-      - sheet: Forecast
-        cell: C2
-        equals: 110000
+    - sheet: Forecast
+      cell: C2
+      equals: 110000
     formulas:
-      - sheet: Forecast
-        cell: B2
-        equals: '=Inputs!$B$3'
-      - sheet: Forecast
-        cell: E2
-        equals: '=SUMIFS(Schedule!$D$2:$D$501,Schedule!$A$2:$A$501,A2)'
-      - sheet: Schedule
-        cell: D2
-        equals: '=Components!$D$7*(1+Inputs!$B$4)^(A2-Inputs!$B$2)'
-      - sheet: Dashboard
-        cell: B4
-        equals: '=Forecast!$A$11'
+    - sheet: Forecast
+      cell: B2
+      equals: =Inputs!$B$3
+    - sheet: Forecast
+      cell: E2
+      equals: =SUMIFS(Schedule!$D$2:$D$501,Schedule!$A$2:$A$501,A2)
+    - sheet: Schedule
+      cell: D2
+      equals: =Components!$D$7*(1+Inputs!$B$4)^(A2-Inputs!$B$2)
+    - sheet: Dashboard
+      cell: B4
+      equals: =Forecast!$A$11
+    - sheet: Forecast
+      cell: G2
+      equals: =IF((1+Inputs!$B$4)^(A2-Inputs!$B$2)*(SUMPRODUCT(--(Components!$H$2:$H$101="Y"),--(Components!$F$2:$F$101="Y"),Components!$D$2:$D$101,IF(Components!$G$2:$G$101<=0,0,IF(Components!$G$2:$G$101-IF(A2<=Components!$E$2:$E$101,Components!$E$2:$E$101-A2,Components!$E$2:$E$101+CEILING((A2-Components!$E$2:$E$101)/IF(Components!$G$2:$G$101>0,Components!$G$2:$G$101,1),1)*Components!$G$2:$G$101-A2)<=0,0,Components!$G$2:$G$101-IF(A2<=Components!$E$2:$E$101,Components!$E$2:$E$101-A2,Components!$E$2:$E$101+CEILING((A2-Components!$E$2:$E$101)/IF(Components!$G$2:$G$101>0,Components!$G$2:$G$101,1),1)*Components!$G$2:$G$101-A2)/Components!$G$2:$G$101)))+SUMPRODUCT(--(Components!$H$2:$H$101="Y"),--(Components!$F$2:$F$101<>"Y"),Components!$D$2:$D$101,IF(A2>Components!$E$2:$E$101,0,IF(Components!$E$2:$E$101-Inputs!$B$2<=0,1,(A2-Inputs!$B$2)/(Components!$E$2:$E$101-Inputs!$B$2)))))=0,"",B2/((1+Inputs!$B$4)^(A2-Inputs!$B$2)*(SUMPRODUCT(--(Components!$H$2:$H$101="Y"),--(Components!$F$2:$F$101="Y"),Components!$D$2:$D$101,IF(Components!$G$2:$G$101<=0,0,IF(Components!$G$2:$G$101-IF(A2<=Components!$E$2:$E$101,Components!$E$2:$E$101-A2,Components!$E$2:$E$101+CEILING((A2-Components!$E$2:$E$101)/IF(Components!$G$2:$G$101>0,Components!$G$2:$G$101,1),1)*Components!$G$2:$G$101-A2)<=0,0,Components!$G$2:$G$101-IF(A2<=Components!$E$2:$E$101,Components!$E$2:$E$101-A2,Components!$E$2:$E$101+CEILING((A2-Components!$E$2:$E$101)/IF(Components!$G$2:$G$101>0,Components!$G$2:$G$101,1),1)*Components!$G$2:$G$101-A2)/Components!$G$2:$G$101)))+SUMPRODUCT(--(Components!$H$2:$H$101="Y"),--(Components!$F$2:$F$101<>"Y"),Components!$D$2:$D$101,IF(A2>Components!$E$2:$E$101,0,IF(Components!$E$2:$E$101-Inputs!$B$2<=0,1,(A2-Inputs!$B$2)/(Components!$E$2:$E$101-Inputs!$B$2)))))))
+    - sheet: Forecast
+      cell: H2
+      equals: =IF(SUM(E2:INDEX($E$2:$E$11,MIN(2+4,11)-1))=0,"",B2/SUM(E2:INDEX($E$2:$E$11,MIN(2+4,11)-1)))
   model:
     schedule:
-      - year: 2025
-        component_id: tree_pruning
-        nominal_expense: 12000
-      - year: 2032
-        component_id: roof_replace
-        nominal_expense: 295169.72770196886
-        tolerance: 0.01
-      - year: 2034
-        component_id: tree_pruning
-        nominal_expense: 15657.278205950939
-        tolerance: 0.01
+    - year: 2025
+      component_id: tree_pruning
+      nominal_expense: 12000
+    - year: 2032
+      component_id: roof_replace
+      nominal_expense: 295169.72770196886
+      tolerance: 0.01
+    - year: 2034
+      component_id: tree_pruning
+      nominal_expense: 15657.278205950939
+      tolerance: 0.01
     forecast:
-      - year: 2025
-        end_balance: 281600
-      - year: 2032
-        end_balance: 518883.4112274243
-        tolerance: 0.01
-      - year: 2034
-        end_balance: 666462.5002837047
-        tolerance: 0.01
+    - year: 2025
+      end_balance: 281600
+    - year: 2032
+      end_balance: 518883.4112274243
+      tolerance: 0.01
+    - year: 2034
+      end_balance: 666462.5002837047
+      tolerance: 0.01
     counts:
       schedule_items: 12
       negative_balance_years: 0

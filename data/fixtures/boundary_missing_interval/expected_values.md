@@ -11,3 +11,6 @@ Expected validation error:
 
 Notes:
 - Build should fail until interval_years is provided.
+
+Funding metrics:
+- Not applicable because validation fails and no workbook is generated.
