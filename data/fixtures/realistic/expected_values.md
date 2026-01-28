@@ -15,15 +15,15 @@ Schedule checks (Sheet: Schedule):
 - `A13` = 2034, `B13` = tree_pruning, `D13` = 15657.28 (displayed as 15,657)
 
 Forecast checks (Sheet: Forecast):
-- `F2` (2025 end balance) = 281600
-- `F3` (2026 end balance) = 286132
-- `F5` (2028 end balance) = 476924.40 (displayed as 476,924)
-- `F9` (2032 end balance) = 518883.41 (displayed as 518,883)
-- `F11` (2034 end balance) = 666462.50 (displayed as 666,463)
+- `H2` (2025 end balance) = 281600
+- `H3` (2026 end balance) = 286132
+- `H5` (2028 end balance) = 476924.40 (displayed as 476,924)
+- `H9` (2032 end balance) = 518883.41 (displayed as 518,883)
+- `H11` (2034 end balance) = 666462.50 (displayed as 666,463)
 
 Funding metrics (Sheet: Forecast):
-- `G` (percent_funded) = beginning balance / fully funded balance (formula-driven).
-- `H` (coverage_5yr) = beginning balance / sum of expenses for the next 5 years (formula-driven).
+- `I` (percent_funded) = beginning balance / fully funded balance (formula-driven).
+- `J` (coverage_5yr) = beginning balance / sum of expenses for the next 5 years (formula-driven).
 
 Checks (Sheet: Checks):
 - `B2` (negative balance years) = 0

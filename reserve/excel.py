@@ -223,7 +223,9 @@ def _write_forecast_sheet(ws, inputs: Inputs, contributions: Dict[int, float]) -
         "year",
         "begin_balance",
         "contributions",
+        "cumulative_contributions",
         "interest",
+        "cumulative_interest",
         "expenses",
         "end_balance",
         "percent_funded",
@@ -256,24 +258,34 @@ def _write_forecast_sheet(ws, inputs: Inputs, contributions: Dict[int, float]) -
         if row == 2:
             begin_formula = f"=Inputs!$B${INPUT_ROWS['beginning_reserve_balance']}"
         else:
-            begin_formula = f"=F{row - 1}"
+            begin_formula = f"=H{row - 1}"
         ws.cell(row=row, column=2, value=begin_formula)
 
         contribution_value = contributions.get(year, 0.0)
         contrib_cell = ws.cell(row=row, column=3, value=contribution_value)
         contrib_cell.fill = INPUT_FILL
 
+        cumulative_contrib_formula = (
+            f"=C{row}" if row == 2 else f"=D{row - 1}+C{row}"
+        )
+        ws.cell(row=row, column=4, value=cumulative_contrib_formula)
+
         interest_formula = f"=B{row}*Inputs!$B${INPUT_ROWS['investment_return_rate']}"
-        ws.cell(row=row, column=4, value=interest_formula)
+        ws.cell(row=row, column=5, value=interest_formula)
+
+        cumulative_interest_formula = (
+            f"=E{row}" if row == 2 else f"=F{row - 1}+E{row}"
+        )
+        ws.cell(row=row, column=6, value=cumulative_interest_formula)
 
         expenses_formula = (
             f"=SUMIFS(Schedule!$D$2:$D${schedule_end_row},"
             f"Schedule!$A$2:$A${schedule_end_row},A{row})"
         )
-        ws.cell(row=row, column=5, value=expenses_formula)
+        ws.cell(row=row, column=7, value=expenses_formula)
 
-        end_formula = f"=B{row}+C{row}+D{row}-E{row}"
-        ws.cell(row=row, column=6, value=end_formula)
+        end_formula = f"=B{row}+C{row}+E{row}-G{row}"
+        ws.cell(row=row, column=8, value=end_formula)
 
         year_cell = f"A{row}"
         inflation_factor = f"(1+{inflation_cell})^({year_cell}-{start_year_cell})"
@@ -308,23 +320,23 @@ def _write_forecast_sheet(ws, inputs: Inputs, contributions: Dict[int, float]) -
 
         fully_funded = f"{inflation_factor}*({sum_recurring}+{sum_nonrecurring})"
         percent_funded_formula = f"=IF({fully_funded}=0,\"\",B{row}/({fully_funded}))"
-        ws.cell(row=row, column=7, value=percent_funded_formula)
+        ws.cell(row=row, column=9, value=percent_funded_formula)
 
         coverage_sum = (
-            f"SUM(E{row}:INDEX($E$2:$E${1 + forecast_years},"
+            f"SUM(G{row}:INDEX($G$2:$G${1 + forecast_years},"
             f"MIN({row}+4,{1 + forecast_years})-1))"
         )
         coverage_formula = f"=IF({coverage_sum}=0,\"\",B{row}/{coverage_sum})"
-        ws.cell(row=row, column=8, value=coverage_formula)
+        ws.cell(row=row, column=10, value=coverage_formula)
 
     for row in range(2, 2 + forecast_years):
-        for col in range(2, 7):
+        for col in range(2, 9):
             ws.cell(row=row, column=col).number_format = "#,##0"
-        ws.cell(row=row, column=7).number_format = "0.00%"
-        ws.cell(row=row, column=8).number_format = "0.00"
+        ws.cell(row=row, column=9).number_format = "0.00%"
+        ws.cell(row=row, column=10).number_format = "0.00"
 
     ws.freeze_panes = "A2"
-    widths = [8, 18, 16, 16, 16, 18, 16, 14]
+    widths = [8, 18, 16, 22, 16, 20, 16, 18, 16, 14]
     for idx, width in enumerate(widths, start=1):
         ws.column_dimensions[chr(64 + idx)].width = width
 
@@ -338,11 +350,19 @@ def _write_checks_sheet(ws, inputs: Inputs) -> None:
 
     ws.append([
         "Years with negative ending balance",
-        f"=COUNTIF(Forecast!$F$2:$F${end_row},\"<0\")",
+        f"=COUNTIF(Forecast!$H$2:$H${end_row},\"<0\")",
     ])
     ws.append([
         "Years with zero expenses",
-        f"=COUNTIF(Forecast!$E$2:$E${end_row},0)",
+        f"=COUNTIF(Forecast!$G$2:$G${end_row},0)",
+    ])
+    ws.append([
+        "Years with coverage_5yr < 1.0",
+        f"=COUNTIF(Forecast!$J$2:$J${end_row},\"<1\")",
+    ])
+    ws.append([
+        "Years with coverage_5yr < 0.5",
+        f"=COUNTIF(Forecast!$J$2:$J${end_row},\"<0.5\")",
     ])
 
     ws.append(["", ""])
@@ -352,7 +372,7 @@ def _write_checks_sheet(ws, inputs: Inputs) -> None:
     start_list_row = ws.max_row + 1
     for offset in range(forecast_years):
         forecast_row = 2 + offset
-        formula = f"=IF(Forecast!$F${forecast_row}<0,Forecast!$A${forecast_row},\"\")"
+        formula = f"=IF(Forecast!$H${forecast_row}<0,Forecast!$A${forecast_row},\"\")"
         ws.cell(row=start_list_row + offset, column=1, value=formula)
 
     ws.column_dimensions["A"].width = 36
@@ -369,11 +389,11 @@ def _write_dashboard_sheet(ws, inputs: Inputs) -> None:
 
     ws.append([
         "Lowest reserve balance",
-        f"=MIN(Forecast!$F$2:$F${end_row})",
+        f"=MIN(Forecast!$H$2:$H${end_row})",
     ])
     ws.append([
         "Ending balance (final year)",
-        f"=Forecast!$F${end_row}",
+        f"=Forecast!$H${end_row}",
     ])
     ws.append([
         "Final forecast year",

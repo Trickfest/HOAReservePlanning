@@ -12,9 +12,6 @@ expect:
     - sheet: Forecast
       cell: B2
       equals: =Inputs!$B$3
-    - sheet: Forecast
-      cell: E2
-      equals: =SUMIFS(Schedule!$D$2:$D$201,Schedule!$A$2:$A$201,A2)
     - sheet: Schedule
       cell: D2
       equals: =Components!$D$2*(1+Inputs!$B$4)^(A2-Inputs!$B$2)
@@ -23,10 +20,25 @@ expect:
       equals: =Forecast!$A$6
     - sheet: Forecast
       cell: G2
+      equals: =SUMIFS(Schedule!$D$2:$D$201,Schedule!$A$2:$A$201,A2)
+    - sheet: Forecast
+      cell: D2
+      equals: =C2
+    - sheet: Forecast
+      cell: F2
+      equals: =E2
+    - sheet: Forecast
+      cell: I2
       equals: =IF((1+Inputs!$B$4)^(A2-Inputs!$B$2)*(SUMPRODUCT(--(Components!$H$2:$H$51="Y"),--(Components!$F$2:$F$51="Y"),Components!$D$2:$D$51,IF(Components!$G$2:$G$51<=0,0,IF(Components!$G$2:$G$51-IF(A2<=Components!$E$2:$E$51,Components!$E$2:$E$51-A2,Components!$E$2:$E$51+CEILING((A2-Components!$E$2:$E$51)/IF(Components!$G$2:$G$51>0,Components!$G$2:$G$51,1),1)*Components!$G$2:$G$51-A2)<=0,0,Components!$G$2:$G$51-IF(A2<=Components!$E$2:$E$51,Components!$E$2:$E$51-A2,Components!$E$2:$E$51+CEILING((A2-Components!$E$2:$E$51)/IF(Components!$G$2:$G$51>0,Components!$G$2:$G$51,1),1)*Components!$G$2:$G$51-A2)/Components!$G$2:$G$51)))+SUMPRODUCT(--(Components!$H$2:$H$51="Y"),--(Components!$F$2:$F$51<>"Y"),Components!$D$2:$D$51,IF(A2>Components!$E$2:$E$51,0,IF(Components!$E$2:$E$51-Inputs!$B$2<=0,1,(A2-Inputs!$B$2)/(Components!$E$2:$E$51-Inputs!$B$2)))))=0,"",B2/((1+Inputs!$B$4)^(A2-Inputs!$B$2)*(SUMPRODUCT(--(Components!$H$2:$H$51="Y"),--(Components!$F$2:$F$51="Y"),Components!$D$2:$D$51,IF(Components!$G$2:$G$51<=0,0,IF(Components!$G$2:$G$51-IF(A2<=Components!$E$2:$E$51,Components!$E$2:$E$51-A2,Components!$E$2:$E$51+CEILING((A2-Components!$E$2:$E$51)/IF(Components!$G$2:$G$51>0,Components!$G$2:$G$51,1),1)*Components!$G$2:$G$51-A2)<=0,0,Components!$G$2:$G$51-IF(A2<=Components!$E$2:$E$51,Components!$E$2:$E$51-A2,Components!$E$2:$E$51+CEILING((A2-Components!$E$2:$E$51)/IF(Components!$G$2:$G$51>0,Components!$G$2:$G$51,1),1)*Components!$G$2:$G$51-A2)/Components!$G$2:$G$51)))+SUMPRODUCT(--(Components!$H$2:$H$51="Y"),--(Components!$F$2:$F$51<>"Y"),Components!$D$2:$D$51,IF(A2>Components!$E$2:$E$51,0,IF(Components!$E$2:$E$51-Inputs!$B$2<=0,1,(A2-Inputs!$B$2)/(Components!$E$2:$E$51-Inputs!$B$2)))))))
     - sheet: Forecast
-      cell: H2
-      equals: =IF(SUM(E2:INDEX($E$2:$E$6,MIN(2+4,6)-1))=0,"",B2/SUM(E2:INDEX($E$2:$E$6,MIN(2+4,6)-1)))
+      cell: J2
+      equals: =IF(SUM(G2:INDEX($G$2:$G$6,MIN(2+4,6)-1))=0,"",B2/SUM(G2:INDEX($G$2:$G$6,MIN(2+4,6)-1)))
+    - sheet: Forecast
+      cell: D3
+      equals: =D2+C3
+    - sheet: Forecast
+      cell: F3
+      equals: =F2+E3
   model:
     schedule:
     - year: 2026

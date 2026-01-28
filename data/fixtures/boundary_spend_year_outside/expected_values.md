@@ -20,14 +20,14 @@ Schedule checks:
 - No row for `old_gate` (outside the window)
 
 Forecast checks:
-- `F2` (2025 end balance) = 100
-- `F3` (2026 end balance) = 150
-- `F4` (2027 end balance) = 250
-- `F5` (2028 end balance) = 350
+- `H2` (2025 end balance) = 100
+- `H3` (2026 end balance) = 150
+- `H4` (2027 end balance) = 250
+- `H5` (2028 end balance) = 350
 
 Funding metrics (Sheet: Forecast):
-- `G` (percent_funded) = beginning balance / fully funded balance (formula-driven).
-- `H` (coverage_5yr) = beginning balance / sum of expenses for the next 5 years (formula-driven).
+- `I` (percent_funded) = beginning balance / fully funded balance (formula-driven).
+- `J` (coverage_5yr) = beginning balance / sum of expenses for the next 5 years (formula-driven).
 
 Checks:
 - `B2` (negative balance years) = 0

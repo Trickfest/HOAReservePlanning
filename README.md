@@ -26,10 +26,21 @@ The Forecast tab now includes two funding metrics, calculated with Excel formula
 - `coverage_5yr`: beginning-of-year balance divided by the sum of expenses for the next 5 years.
   - Near the end of the forecast, the window shrinks to the remaining years.
 
+Interpretation (rule of thumb):
+- `coverage_5yr` > 1.0 means the beginning-of-year balance can cover more than the next 5 years of expenses; < 1.0 means it cannot.
+- `percent_funded` at 100% means the reserve is fully funded; below 100% indicates underfunded, above 100% indicates a surplus relative to the target.
+
 Fully funded balance assumptions:
 - Recurring components fund linearly across their interval (`interval_years`).
 - Non-recurring components fund linearly from the starting year to their `spend_year`.
 - Costs are inflated to the forecast year using the inflation rate.
+
+Fully funded balance definition:
+- The sum of each component’s funded portion, where funded portion is the inflated current cost multiplied by the fraction of useful life that has elapsed (linear funding).
+
+The Forecast tab also includes:
+- `cumulative_contributions`: running total of contributions.
+- `cumulative_interest`: running total of interest.
 
 ## Run a build for a specific scenario
 

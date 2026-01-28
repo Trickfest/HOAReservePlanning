@@ -10,13 +10,13 @@ Schedule checks:
 - Expenses occur every year (2025, 2026, 2027).
 
 Forecast checks:
-- `F2` (2025 end balance) = 0
-- `F3` (2026 end balance) = 0
-- `F4` (2027 end balance) = 0
+- `H2` (2025 end balance) = 0
+- `H3` (2026 end balance) = 0
+- `H4` (2027 end balance) = 0
 
 Funding metrics (Sheet: Forecast):
-- `G` (percent_funded) = beginning balance / fully funded balance (formula-driven).
-- `H` (coverage_5yr) = beginning balance / sum of expenses for the next 5 years (formula-driven).
+- `I` (percent_funded) = beginning balance / fully funded balance (formula-driven).
+- `J` (coverage_5yr) = beginning balance / sum of expenses for the next 5 years (formula-driven).
 
 Checks:
 - `B2` (negative balance years) = 0

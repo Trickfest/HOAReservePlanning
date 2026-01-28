@@ -16,12 +16,12 @@ python -m reserve build --scenario extra_contribution --data-dir data/fixtures/b
 ```
 
 Forecast checks:
-- `F2` (2025 end balance) = 100
-- `F3` (2026 end balance) = 200
+- `H2` (2025 end balance) = 100
+- `H3` (2026 end balance) = 200
 
 Funding metrics (Sheet: Forecast):
-- `G` (percent_funded) = beginning balance / fully funded balance (formula-driven).
-- `H` (coverage_5yr) = beginning balance / sum of expenses for the next 5 years (formula-driven).
+- `I` (percent_funded) = beginning balance / fully funded balance (formula-driven).
+- `J` (coverage_5yr) = beginning balance / sum of expenses for the next 5 years (formula-driven).
 
 Checks:
 - `B2` (negative balance years) = 0

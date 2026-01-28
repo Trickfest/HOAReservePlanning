@@ -12,15 +12,15 @@ Schedule checks (Sheet: Schedule):
 - `A4` = 2028, `B4` = paving_seal, `D4` = 200
 
 Forecast checks (Sheet: Forecast):
-- `F2` (2025 end balance) = 1400
-- `F3` (2026 end balance) = 1640
-- `F4` (2027 end balance) = 1604
-- `F5` (2028 end balance) = 1864.4 (displayed as 1,864)
-- `F6` (2029 end balance) = 2350.84 (displayed as 2,351)
+- `H2` (2025 end balance) = 1400
+- `H3` (2026 end balance) = 1640
+- `H4` (2027 end balance) = 1604
+- `H5` (2028 end balance) = 1864.4 (displayed as 1,864)
+- `H6` (2029 end balance) = 2350.84 (displayed as 2,351)
 
 Funding metrics (Sheet: Forecast):
-- `G` (percent_funded) = beginning balance / fully funded balance (formula-driven).
-- `H` (coverage_5yr) = beginning balance / sum of expenses for the next 5 years (formula-driven).
+- `I` (percent_funded) = beginning balance / fully funded balance (formula-driven).
+- `J` (coverage_5yr) = beginning balance / sum of expenses for the next 5 years (formula-driven).
 
 Checks (Sheet: Checks):
 - `B2` (negative balance years) = 0

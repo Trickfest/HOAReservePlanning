@@ -56,7 +56,7 @@ def _expected_percent_funded_formula(
 def _expected_coverage_formula(row: int, forecast_years: int) -> str:
     end_row = 1 + forecast_years
     coverage_sum = (
-        f"SUM(E{row}:INDEX($E$2:$E${end_row},MIN({row}+4,{end_row})-1))"
+        f"SUM(G{row}:INDEX($G$2:$G${end_row},MIN({row}+4,{end_row})-1))"
     )
     return f"=IF({coverage_sum}=0,\"\",B{row}/{coverage_sum})"
 
@@ -111,7 +111,9 @@ class ExcelTests(unittest.TestCase):
                 "year",
                 "begin_balance",
                 "contributions",
+                "cumulative_contributions",
                 "interest",
+                "cumulative_interest",
                 "expenses",
                 "end_balance",
                 "percent_funded",
@@ -120,22 +122,38 @@ class ExcelTests(unittest.TestCase):
         )
 
         self.assertEqual(
-            forecast_ws["E2"].value,
-            _expected_expenses_formula(2, inputs.features["max_schedule_rows"]),
+            forecast_ws["D2"].value,
+            "=C2",
+        )
+        self.assertEqual(
+            forecast_ws["D3"].value,
+            "=D2+C3",
+        )
+        self.assertEqual(
+            forecast_ws["F2"].value,
+            "=E2",
+        )
+        self.assertEqual(
+            forecast_ws["F3"].value,
+            "=F2+E3",
         )
         self.assertEqual(
             forecast_ws["G2"].value,
+            _expected_expenses_formula(2, inputs.features["max_schedule_rows"]),
+        )
+        self.assertEqual(
+            forecast_ws["I2"].value,
             _expected_percent_funded_formula(
                 2, inputs.forecast_years, inputs.features["max_components_rows"]
             ),
         )
         self.assertEqual(
-            forecast_ws["H2"].value,
+            forecast_ws["J2"].value,
             _expected_coverage_formula(2, inputs.forecast_years),
         )
 
-        self.assertEqual(forecast_ws["G2"].number_format, "0.00%")
-        self.assertEqual(forecast_ws["H2"].number_format, "0.00")
+        self.assertEqual(forecast_ws["I2"].number_format, "0.00%")
+        self.assertEqual(forecast_ws["J2"].number_format, "0.00")
 
 
 if __name__ == "__main__":
