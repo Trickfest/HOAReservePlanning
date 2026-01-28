@@ -1,6 +1,6 @@
 # HOA Reserve Planning Model
 
-This project generates a .xlsx reserve planning workbook from simple text files.  The .xlsx is Apple Numbers-friendly.
+This project generates a .xlsx reserve planning workbook from simple text files.  The .xlsx is also works with Apple Numbers.
 
 ## Quick start
 
@@ -22,6 +22,14 @@ dist/HOA_Reserve_Planning_<scenario>.xlsx
 
 The Forecast tab now includes two funding metrics, calculated with Excel formulas:
 
+Fully funded balance definition:
+- The sum of each component’s funded portion, where funded portion is the inflated current cost multiplied by the fraction of useful life that has elapsed (linear funding).
+
+Examples (starting year 2026):
+- Recurring example: Roof replacement costs $100,000 today, inflation 3%, interval 10 years. In year 2030 (4 years after 2026), inflated cost is $100,000 × 1.03^4 ≈ $112,551. If 4 of 10 years have elapsed, funded portion is 4/10 × $112,551 ≈ $45,020.
+- Non-recurring example: Paint project costs $20,000 today, inflation 3%, spend year 2031 (5 years from 2026). In year 2029 (3 years after 2026), inflated cost is $20,000 × 1.03^3 ≈ $21,855. Funded fraction is 3/5, so funded portion ≈ $13,113.
+- Generic formula: `inflated_cost = base_cost * (1 + inflation_rate)^(year - starting_year)`.
+
 - `percent_funded`: beginning-of-year balance divided by the fully funded balance.
 - `coverage_5yr`: beginning-of-year balance divided by the sum of expenses for the next 5 years.
   - Near the end of the forecast, the window shrinks to the remaining years.
@@ -34,9 +42,6 @@ Fully funded balance assumptions:
 - Recurring components fund linearly across their interval (`interval_years`).
 - Non-recurring components fund linearly from the starting year to their `spend_year`.
 - Costs are inflated to the forecast year using the inflation rate.
-
-Fully funded balance definition:
-- The sum of each component’s funded portion, where funded portion is the inflated current cost multiplied by the fraction of useful life that has elapsed (linear funding).
 
 The Forecast tab also includes:
 - `cumulative_contributions`: running total of contributions.

@@ -14,6 +14,8 @@ Backlog for features, improvements, research, fixes, etc.
 
 * Add ability to specify an alternative inputs file
 
+* During the build process, verify with tests the generated forecast, etc.
+
 ### Research
 
 * Verify math manually
@@ -22,6 +24,5 @@ Backlog for features, improvements, research, fixes, etc.
 
 * In the spreadsheet, the contributions column is in a different color. It probably shouldn't be.
 
-* On the inputs tab in the spreadsheet, the boolean flags should be right-justified.
 
 
