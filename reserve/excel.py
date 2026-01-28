@@ -442,6 +442,7 @@ def _write_dashboard_sheet(ws, inputs: Inputs) -> None:
 
     for row in range(2, 5):
         ws.cell(row=row, column=2).number_format = "#,##0"
+    ws.cell(row=4, column=2).number_format = "0"
 
     ws.column_dimensions["A"].width = 32
     ws.column_dimensions["B"].width = 18
