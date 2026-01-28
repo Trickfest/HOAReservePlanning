@@ -78,12 +78,28 @@ def _style_header(ws, num_cols: int) -> None:
 
 
 def _write_readme_sheet(ws, scenario: str) -> None:
-    ws["A1"] = "HOA Reserve Planning Workbook"
-    ws["A2"] = f"Scenario: {scenario}"
-    ws["A3"] = "Generated from data/inputs.yaml, data/components.csv, and data/contributions/*.csv"
-    ws["A4"] = "Edit source files and rebuild for versioned changes."
-    ws["A6"] = "Sheets: Inputs, Components, Schedule, Forecast, Checks, Dashboard"
+    summary_lines = [
+        "HOA Reserve Planning Workbook",
+        f"Scenario: {scenario}",
+        "",
+        "Generated from:",
+        "- data/inputs.yaml",
+        "- data/components.csv",
+        "- data/contributions/*.csv",
+        "",
+        "Edit source files and rebuild for versioned changes.",
+        "",
+        "Sheets: Inputs, Components, Schedule, Forecast, Checks, Dashboard",
+    ]
+    ws["A1"] = "\n".join(summary_lines)
+    ws["A1"].alignment = Alignment(vertical="top", wrap_text=True)
+    ws["A1"].fill = HEADER_FILL
+
+    for row in range(2, 20):
+        ws.row_dimensions[row].hidden = True
     ws.column_dimensions["A"].width = 90
+    ws.sheet_view.showGridLines = False
+    ws.row_dimensions[1].height = 18 * len(summary_lines)
 
 
 def _write_inputs_sheet(ws, inputs: Inputs) -> None:
@@ -146,10 +162,34 @@ def _write_inputs_sheet(ws, inputs: Inputs) -> None:
     ws.cell(row=FEATURE_ROWS["max_components_rows"], column=2).number_format = "0"
     ws.cell(row=FEATURE_ROWS["max_schedule_rows"], column=2).number_format = "0"
 
+    summary_lines = [
+        "Inputs",
+        f"starting_year: {inputs.starting_year}",
+        f"beginning_reserve_balance: {inputs.beginning_reserve_balance:,.0f}",
+        f"inflation_rate: {inputs.inflation_rate:.2%}",
+        f"investment_return_rate: {inputs.investment_return_rate:.2%}",
+        "",
+        "Features",
+        f"forecast_years: {inputs.forecast_years}",
+        f"enable_checks: {str(bool(inputs.features.get('enable_checks', True))).lower()}",
+        f"enable_dashboard: {str(bool(inputs.features.get('enable_dashboard', True))).lower()}",
+        f"enable_schedule_expansion: {str(bool(inputs.features.get('enable_schedule_expansion', True))).lower()}",
+        f"max_components_rows: {int(inputs.features.get('max_components_rows', 500))}",
+        f"max_schedule_rows: {int(inputs.features.get('max_schedule_rows', 10000))}",
+    ]
+    ws["A1"] = "\n".join(summary_lines)
+    ws["A1"].alignment = Alignment(vertical="top", wrap_text=True)
+
+    # Hide the input table while keeping values for formulas.
+    for row in range(2, FEATURE_ROWS["max_schedule_rows"] + 1):
+        ws.row_dimensions[row].hidden = True
+    ws.column_dimensions["B"].hidden = True
+    ws.column_dimensions["C"].hidden = True
+    ws.sheet_view.showGridLines = False
+
+    ws.row_dimensions[1].height = 18 * len(summary_lines)
     ws.freeze_panes = "A2"
-    ws.column_dimensions["A"].width = 32
-    ws.column_dimensions["B"].width = 18
-    ws.column_dimensions["C"].width = 60
+    ws.column_dimensions["A"].width = 90
 
 
 def _write_components_sheet(ws, inputs: Inputs, components: List[Component]) -> None:
