@@ -25,6 +25,7 @@ Reserve planning balances near-term cash needs with long-term component funding.
 Glossary (Forecast tab terms):
 - **Inflated cost**: `inflated_cost = base_cost * (1 + inflation_rate)^(year - starting_year)`; the exponent is the number of years after the starting year.
 - **Fully funded balance (FFB)**: the sum of each component’s funded portion, where funded portion is the inflated current cost multiplied by the fraction of useful life elapsed (linear funding). Recurring items use `interval_years`; non-recurring items fund linearly from `starting_year` to `spend_year`.
+- **Useful life**: the time (in years) over which a component is expected to be used before replacement. For recurring items this is `interval_years`; for non-recurring items it is `spend_year - starting_year`.
 - **percent_funded**: beginning-of-year balance ÷ FFB. Around 100% means fully funded; below 100% indicates underfunded, above 100% indicates surplus relative to target.
 - **coverage_5yr**: beginning-of-year balance ÷ sum of expenses for the next 5 years. > 1.0 means you can cover more than 5 years of expenses; < 1.0 means you cannot. Near the end of the forecast, the window shrinks to remaining years.
 - **cumulative_contributions**: running total of contributions to date.
@@ -129,4 +130,3 @@ Additional boundary fixtures live under `data/fixtures/boundary_*`.
 ```bash
 python -m unittest discover -s tests
 ```
-

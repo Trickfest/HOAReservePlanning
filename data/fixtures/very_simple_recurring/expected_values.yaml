@@ -1,0 +1,56 @@
+scenario: very_simple_recurring
+expect:
+  validation:
+    errors: []
+    warnings: []
+  workbook:
+    values:
+    - sheet: Forecast
+      cell: C2
+      equals: 100000
+    formulas:
+    - sheet: Forecast
+      cell: B2
+      equals: =Inputs!$B$3
+    - sheet: Forecast
+      cell: D2
+      equals: =C2
+    - sheet: Forecast
+      cell: D3
+      equals: =D2+C3
+    - sheet: Forecast
+      cell: F2
+      equals: =E2
+    - sheet: Forecast
+      cell: F3
+      equals: =F2+E3
+    - sheet: Forecast
+      cell: G2
+      equals: =SUMIFS(Schedule!$D$2:$D$21,Schedule!$A$2:$A$21,A2)
+    - sheet: Forecast
+      cell: I2
+      equals: =IF((1+Inputs!$B$4)^(A2-Inputs!$B$2)*(SUMPRODUCT(--(Components!$H$2:$H$11="Y"),--(Components!$F$2:$F$11="Y"),Components!$D$2:$D$11,IF(Components!$G$2:$G$11<=0,0,IF(Components!$G$2:$G$11-IF(A2<=Components!$E$2:$E$11,Components!$E$2:$E$11-A2,Components!$E$2:$E$11+CEILING((A2-Components!$E$2:$E$11)/IF(Components!$G$2:$G$11>0,Components!$G$2:$G$11,1),1)*Components!$G$2:$G$11-A2)<=0,0,Components!$G$2:$G$11-IF(A2<=Components!$E$2:$E$11,Components!$E$2:$E$11-A2,Components!$E$2:$E$11+CEILING((A2-Components!$E$2:$E$11)/IF(Components!$G$2:$G$11>0,Components!$G$2:$G$11,1),1)*Components!$G$2:$G$11-A2)/Components!$G$2:$G$11)))+SUMPRODUCT(--(Components!$H$2:$H$11="Y"),--(Components!$F$2:$F$11<>"Y"),Components!$D$2:$D$11,IF(A2>Components!$E$2:$E$11,0,IF(Components!$E$2:$E$11-Inputs!$B$2<=0,1,(A2-Inputs!$B$2)/(Components!$E$2:$E$11-Inputs!$B$2)))))=0,"",B2/((1+Inputs!$B$4)^(A2-Inputs!$B$2)*(SUMPRODUCT(--(Components!$H$2:$H$11="Y"),--(Components!$F$2:$F$11="Y"),Components!$D$2:$D$11,IF(Components!$G$2:$G$11<=0,0,IF(Components!$G$2:$G$11-IF(A2<=Components!$E$2:$E$11,Components!$E$2:$E$11-A2,Components!$E$2:$E$11+CEILING((A2-Components!$E$2:$E$11)/IF(Components!$G$2:$G$11>0,Components!$G$2:$G$11,1),1)*Components!$G$2:$G$11-A2)<=0,0,Components!$G$2:$G$11-IF(A2<=Components!$E$2:$E$11,Components!$E$2:$E$11-A2,Components!$E$2:$E$11+CEILING((A2-Components!$E$2:$E$11)/IF(Components!$G$2:$G$11>0,Components!$G$2:$G$11,1),1)*Components!$G$2:$G$11-A2)/Components!$G$2:$G$11)))+SUMPRODUCT(--(Components!$H$2:$H$11="Y"),--(Components!$F$2:$F$11<>"Y"),Components!$D$2:$D$11,IF(A2>Components!$E$2:$E$11,0,IF(Components!$E$2:$E$11-Inputs!$B$2<=0,1,(A2-Inputs!$B$2)/(Components!$E$2:$E$11-Inputs!$B$2)))))))
+    - sheet: Forecast
+      cell: J2
+      equals: =IF(SUM(G2:INDEX($G$2:$G$12,MIN(2+4,12)-1))=0,"",B2/SUM(G2:INDEX($G$2:$G$12,MIN(2+4,12)-1)))
+    - sheet: Schedule
+      cell: D2
+      equals: =Components!$D$2*(1+Inputs!$B$4)^(A2-Inputs!$B$2)
+    - sheet: Dashboard
+      cell: B4
+      equals: =Forecast!$A$12
+  model:
+    schedule:
+    - year: 2036
+      component_id: roof
+      nominal_expense: 1000000
+    forecast:
+    - year: 2026
+      end_balance: 100000
+    - year: 2036
+      end_balance: 100000
+    counts:
+      schedule_items: 1
+      negative_balance_years: 0
+      zero_expense_years: 10
+      forecast_years: 11
