@@ -28,10 +28,10 @@ def _expected_percent_funded_formula(
         f"IF({interval_range}>0,{interval_range},1),1)"
         f"*{interval_range}-{year_cell})"
     )
-    recurring_age = f"{interval_range}-{years_to_next}"
+    recurring_age = f"({interval_range}-({years_to_next}))"
     recurring_fraction = (
         f"IF({interval_range}<=0,0,"
-        f"IF({recurring_age}<=0,0,{recurring_age}/{interval_range}))"
+        f"IF({recurring_age}<=0,0,({recurring_age})/{interval_range}))"
     )
 
     nonrecurring_fraction = (
