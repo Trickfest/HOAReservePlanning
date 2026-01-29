@@ -42,7 +42,7 @@ The Forecast tab gets its yearly expenses from the Schedule tab. For each year, 
 ### Percent funded: how it is computed
 For each year, **percent_funded** is:
 ```
-beginning-of-year balance ÷ fully funded balance
+beginning of year balance ÷ fully funded balance
 ```
 The fully funded balance is computed by:
 1. Inflating component costs to the current forecast year.
