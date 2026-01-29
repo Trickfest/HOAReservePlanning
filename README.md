@@ -20,32 +20,42 @@ dist/HOA_Reserve_Planning_<scenario>.xlsx
 
 ## Funding metrics in the Forecast sheet
 
-The Forecast tab now includes two funding metrics, calculated with Excel formulas:
+Reserve planning balances near-term cash needs with long-term component funding. The Forecast tab reports both so you can see liquidity and funding adequacy year by year.
 
-Fully funded balance definition:
-- The sum of each component’s funded portion, where funded portion is the inflated current cost multiplied by the fraction of useful life that has elapsed (linear funding).
+Glossary (Forecast tab terms):
+- **Inflated cost**: `inflated_cost = base_cost * (1 + inflation_rate)^(year - starting_year)`; the exponent is the number of years after the starting year.
+- **Fully funded balance (FFB)**: the sum of each component’s funded portion, where funded portion is the inflated current cost multiplied by the fraction of useful life elapsed (linear funding). Recurring items use `interval_years`; non-recurring items fund linearly from `starting_year` to `spend_year`.
+- **percent_funded**: beginning-of-year balance ÷ FFB. Around 100% means fully funded; below 100% indicates underfunded, above 100% indicates surplus relative to target.
+- **coverage_5yr**: beginning-of-year balance ÷ sum of expenses for the next 5 years. > 1.0 means you can cover more than 5 years of expenses; < 1.0 means you cannot. Near the end of the forecast, the window shrinks to remaining years.
+- **cumulative_contributions**: running total of contributions to date.
+- **cumulative_interest**: running total of interest to date.
 
 Examples (starting year 2026):
 - Recurring example: Roof replacement costs $100,000 today, inflation 3%, interval 10 years. In year 2030 (4 years after 2026), inflated cost is $100,000 × 1.03^4 ≈ $112,551. If 4 of 10 years have elapsed, funded portion is 4/10 × $112,551 ≈ $45,020.
 - Non-recurring example: Paint project costs $20,000 today, inflation 3%, spend year 2031 (5 years from 2026). In year 2029 (3 years after 2026), inflated cost is $20,000 × 1.03^3 ≈ $21,855. Funded fraction is 3/5, so funded portion ≈ $13,113.
-- Generic formula: `inflated_cost = base_cost * (1 + inflation_rate)^(year - starting_year)`.
 
-- `percent_funded`: beginning-of-year balance divided by the fully funded balance.
-- `coverage_5yr`: beginning-of-year balance divided by the sum of expenses for the next 5 years.
-  - Near the end of the forecast, the window shrinks to the remaining years.
+## Calculation Details
 
-Interpretation (rule of thumb):
-- `coverage_5yr` > 1.0 means the beginning-of-year balance can cover more than the next 5 years of expenses; < 1.0 means it cannot.
-- `percent_funded` at 100% means the reserve is fully funded; below 100% indicates underfunded, above 100% indicates a surplus relative to the target.
+### How Forecast expenses are calculated
+The Forecast tab gets its yearly expenses from the Schedule tab. For each year, it sums all schedule rows whose year matches the Forecast year. In plain terms: **“total scheduled expenses for this year.”** This keeps the Forecast math simple and ensures the Schedule sheet is the single source of truth for timing.
 
-Fully funded balance assumptions:
-- Recurring components fund linearly across their interval (`interval_years`).
-- Non-recurring components fund linearly from the starting year to their `spend_year`.
-- Costs are inflated to the forecast year using the inflation rate.
+### Percent funded: how it is computed
+For each year, **percent_funded** is:
+```
+beginning-of-year balance ÷ fully funded balance
+```
+The fully funded balance is computed by:
+1. Inflating component costs to the current forecast year.
+2. For recurring items, funding linearly across the interval (age ÷ interval).
+3. For non-recurring items, funding linearly from the starting year to the spend year.
+If there is no fully funded target for a year, the cell is left blank.
 
-The Forecast tab also includes:
-- `cumulative_contributions`: running total of contributions.
-- `cumulative_interest`: running total of interest.
+### Recurring vs. non-recurring: why it matters
+Recurring items “reset” after each replacement cycle. That means a roof that gets replaced every 20 years starts a new 20‑year funding cycle after each replacement. Modeling it as multiple non‑recurring rows would overlap those cycles and **overstate** the fully funded balance, which makes percent_funded look artificially low.
+
+As a rule of thumb:
+- Use **recurring** for the same component repeating on a regular interval.
+- Use **multiple non‑recurring** rows only when timing or scope changes meaningfully.
 
 ## Run a build for a specific scenario
 
@@ -119,3 +129,4 @@ Additional boundary fixtures live under `data/fixtures/boundary_*`.
 ```bash
 python -m unittest discover -s tests
 ```
+
