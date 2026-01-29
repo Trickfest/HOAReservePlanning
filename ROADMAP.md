@@ -14,11 +14,15 @@ Backlog for features, improvements, research, fixes, etc.
 
 * Add ability to specify an alternative inputs file
 
-* During the build process, verify with tests the generated forecast, etc.
-
 ### Research
 
 * Verify math manually
+
+* Test with Excel on Mac
+
+* Test with Excel on iPad
+
+* Test with Numbers on iPad
 
 ### Bugs
 
