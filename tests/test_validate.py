@@ -6,7 +6,7 @@ from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
 from reserve.cli import main as cli_main
-from reserve.model import Component, Inputs, compute_forecast, expenses_by_year
+from reserve.model import Component, Inputs, compute_forecast, expenses_by_year, load_inputs
 from reserve.schedule import expand_schedule
 from reserve.validate import validate_scenario
 
@@ -46,6 +46,14 @@ def write_inputs(
 
 
 class ValidationTests(unittest.TestCase):
+    def test_default_audit_tolerances(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            data_dir = Path(tmpdir)
+            write_inputs(data_dir / "inputs.yaml", forecast_years=1)
+            inputs = load_inputs(data_dir=data_dir)
+            self.assertAlmostEqual(inputs.audit_tolerance_amount, 0.01, places=4)
+            self.assertAlmostEqual(inputs.audit_tolerance_ratio, 0.0001, places=6)
+
     def test_invalid_flags(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             data_dir = Path(tmpdir)

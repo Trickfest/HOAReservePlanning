@@ -7,7 +7,12 @@ from typing import Dict, Iterable, List
 
 import yaml
 
-from .constants import DATA_DIR, DEFAULT_FEATURES
+from .constants import (
+    DATA_DIR,
+    DEFAULT_AUDIT_TOLERANCE_AMOUNT,
+    DEFAULT_AUDIT_TOLERANCE_RATIO,
+    DEFAULT_FEATURES,
+)
 
 
 @dataclass
@@ -18,6 +23,8 @@ class Inputs:
     inflation_rate: float
     investment_return_rate: float
     features: Dict[str, object]
+    audit_tolerance_amount: float = DEFAULT_AUDIT_TOLERANCE_AMOUNT
+    audit_tolerance_ratio: float = DEFAULT_AUDIT_TOLERANCE_RATIO
 
 
 @dataclass
@@ -73,12 +80,21 @@ def load_inputs(path: Path | None = None, data_dir: Path | None = None) -> Input
     inflation_rate = float(_require(raw, "inflation_rate"))
     investment_return_rate = float(_require(raw, "investment_return_rate"))
 
+    audit_tolerance_amount = float(
+        raw.get("audit_tolerance_amount", DEFAULT_AUDIT_TOLERANCE_AMOUNT)
+    )
+    audit_tolerance_ratio = float(
+        raw.get("audit_tolerance_ratio", DEFAULT_AUDIT_TOLERANCE_RATIO)
+    )
+
     return Inputs(
         starting_year=starting_year,
         forecast_years=int(features["forecast_years"]),
         beginning_reserve_balance=beginning_reserve_balance,
         inflation_rate=inflation_rate,
         investment_return_rate=investment_return_rate,
+        audit_tolerance_amount=audit_tolerance_amount,
+        audit_tolerance_ratio=audit_tolerance_ratio,
         features=features,
     )
 

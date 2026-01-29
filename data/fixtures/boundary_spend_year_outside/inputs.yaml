@@ -2,10 +2,13 @@ starting_year: 2025
 beginning_reserve_balance: 0
 inflation_rate: 0.0
 investment_return_rate: 0.0
+audit_tolerance_amount: 0.01
+audit_tolerance_ratio: 0.0001
 FEATURES:
   forecast_years: 4
   enable_checks: true
   enable_dashboard: true
   enable_schedule_expansion: true
+  enable_audit: true
   max_components_rows: 20
   max_schedule_rows: 50

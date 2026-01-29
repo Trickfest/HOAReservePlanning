@@ -1,5 +1,7 @@
 import unittest
 
+from openpyxl.utils import get_column_letter
+
 from reserve import excel
 from reserve.model import Component, Inputs
 from reserve.schedule import expand_schedule
@@ -154,6 +156,92 @@ class ExcelTests(unittest.TestCase):
 
         self.assertEqual(forecast_ws["I2"].number_format, "0.00%")
         self.assertEqual(forecast_ws["J2"].number_format, "0.00")
+
+    def test_forecast_audit_enabled(self) -> None:
+        inputs = Inputs(
+            starting_year=2025,
+            forecast_years=2,
+            beginning_reserve_balance=1000.0,
+            inflation_rate=0.0,
+            investment_return_rate=0.0,
+            features={
+                "enable_audit": True,
+                "max_components_rows": 5,
+                "max_schedule_rows": 20,
+            },
+        )
+        components = [
+            Component(
+                id="roof",
+                name="Roof",
+                category="Building",
+                base_cost=1000.0,
+                spend_year=2026,
+                recurring=False,
+                interval_years=None,
+                include=True,
+                row_index=2,
+            )
+        ]
+        schedule_items = expand_schedule(components, inputs)
+        contributions = {2025: 0.0, 2026: 0.0}
+
+        wb = excel.build_workbook(
+            inputs=inputs,
+            components=components,
+            schedule_items=schedule_items,
+            contributions=contributions,
+            scenario="audit-on",
+        )
+
+        forecast_ws = wb["Forecast"]
+        headers = [cell.value for cell in forecast_ws[1]]
+        base_len = len(excel.FORECAST_HEADERS)
+        self.assertEqual(headers[:base_len], excel.FORECAST_HEADERS)
+        self.assertEqual(len(headers), base_len * 3)
+        self.assertIn("year_expected", headers)
+        self.assertIn("year_audit", headers)
+
+        first_expected_col = get_column_letter(base_len + 1)
+        first_audit_col = get_column_letter(base_len + 2)
+        self.assertTrue(forecast_ws.column_dimensions[first_expected_col].hidden)
+        self.assertFalse(forecast_ws.column_dimensions[first_audit_col].hidden)
+        self.assertTrue(str(forecast_ws[f"{first_audit_col}2"].value).startswith("=IF("))
+
+        checks_ws = wb["Checks"]
+        labels = [cell.value for cell in checks_ws["A"] if cell.value]
+        self.assertIn("Audit summary", labels)
+        self.assertIn("Audit flags: year", labels)
+
+    def test_forecast_audit_disabled(self) -> None:
+        inputs = Inputs(
+            starting_year=2025,
+            forecast_years=2,
+            beginning_reserve_balance=1000.0,
+            inflation_rate=0.0,
+            investment_return_rate=0.0,
+            features={"max_components_rows": 5, "max_schedule_rows": 20},
+        )
+        components = []
+        schedule_items = expand_schedule(components, inputs)
+        contributions = {2025: 0.0, 2026: 0.0}
+
+        wb = excel.build_workbook(
+            inputs=inputs,
+            components=components,
+            schedule_items=schedule_items,
+            contributions=contributions,
+            scenario="audit-off",
+        )
+
+        forecast_ws = wb["Forecast"]
+        headers = [cell.value for cell in forecast_ws[1]]
+        self.assertEqual(headers, excel.FORECAST_HEADERS)
+        self.assertEqual(len(forecast_ws.conditional_formatting), 0)
+
+        checks_ws = wb["Checks"]
+        labels = [cell.value for cell in checks_ws["A"] if cell.value]
+        self.assertNotIn("Audit summary", labels)
 
 
 if __name__ == "__main__":

@@ -125,6 +125,14 @@ Additional boundary fixtures live under `data/fixtures/boundary_*`.
 - If expanded schedule rows exceed `FEATURES.max_schedule_rows`, validation fails so formulas stay in-bounds.
 - Funding metric formulas return blank when the denominator is zero (no fully funded target or no expenses in the 5-year window).
 
+## Audit settings (debug)
+
+- `FEATURES.enable_audit`: when `true`, adds hidden expected-value columns and visible audit flag columns to the Forecast sheet plus a summary at the end of the Checks sheet. Audit flags display `FAIL` when out of tolerance.
+- `audit_tolerance_amount`: absolute tolerance for dollar columns (default `0.01`).
+- `audit_tolerance_ratio`: tolerance for ratio columns like `percent_funded` and `coverage_5yr` (default `0.0001`, or 0.01%).
+- Audit flags are intended for build-time validation; if you edit values directly in the workbook, expect audit failures until you regenerate from the source files. 
+- Treat enable_audit as something akin to a "debug=Y" flag.  
+
 ## Tests
 
 ```bash
