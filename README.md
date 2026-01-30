@@ -70,11 +70,19 @@ Optional macOS open:
 python -m reserve build --scenario recommended --open
 ```
 
+Optional overrides for inputs/components (paths can be outside `data/`):
+
+```bash
+python -m reserve build --scenario recommended --inputs path/to/inputs.yaml --components path/to/components.csv
+```
+
 ## Where to edit inputs, components, and contributions
 
 - Global assumptions and feature flags: `data/inputs.yaml`
 - Reserve components: `data/components.csv`
 - Contributions (one file per scenario): `data/contributions/<scenario>.csv`
+
+You can override `inputs.yaml` or `components.csv` at runtime with `--inputs` and `--components` on `build` or `validate`. Contributions still come from `--data-dir` (or `data/` by default).
 
 ## How to add a new component
 

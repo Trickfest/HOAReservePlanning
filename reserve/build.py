@@ -14,9 +14,14 @@ def build_workbook(
     scenario: str,
     open_file: bool = False,
     data_dir: Path | None = None,
+    inputs_path: Path | None = None,
+    components_path: Path | None = None,
 ) -> tuple[Path, ValidationResult]:
     result, inputs, components, contributions = validate_scenario(
-        scenario, data_dir=data_dir
+        scenario,
+        data_dir=data_dir,
+        inputs_path=inputs_path,
+        components_path=components_path,
     )
     if result.errors:
         raise ValidationError(result)

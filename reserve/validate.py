@@ -25,18 +25,20 @@ class ValidationError(Exception):
 def validate_scenario(
     scenario: str,
     data_dir: Path | None = None,
+    inputs_path: Path | None = None,
+    components_path: Path | None = None,
 ) -> Tuple[ValidationResult, Inputs, List[Component], Dict[int, float]]:
     errors: List[str] = []
     warnings: List[str] = []
 
     try:
-        inputs = load_inputs(data_dir=data_dir)
+        inputs = load_inputs(path=inputs_path, data_dir=data_dir)
     except Exception as exc:  # pragma: no cover - fatal parse issues
         errors.append(str(exc))
         result = ValidationResult(errors, warnings)
         raise ValidationError(result) from exc
 
-    components_path = (data_dir or DATA_DIR) / "components.csv"
+    components_path = components_path or (data_dir or DATA_DIR) / "components.csv"
     component_errors, component_warnings = _validate_components_csv(
         components_path, inputs
     )
@@ -47,7 +49,7 @@ def validate_scenario(
         components = []
     else:
         try:
-            components = load_components(data_dir=data_dir)
+            components = load_components(path=components_path, data_dir=data_dir)
         except Exception as exc:
             errors.append(str(exc))
             components = []

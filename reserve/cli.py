@@ -35,10 +35,26 @@ def main(argv: list[str] | None = None) -> int:
     build_parser.add_argument("--scenario", required=True)
     build_parser.add_argument("--open", action="store_true")
     build_parser.add_argument("--data-dir")
+    build_parser.add_argument(
+        "--inputs",
+        help="Path to inputs.yaml (overrides --data-dir)",
+    )
+    build_parser.add_argument(
+        "--components",
+        help="Path to components.csv (overrides --data-dir)",
+    )
 
     validate_parser = subparsers.add_parser("validate", help="Validate inputs")
     validate_parser.add_argument("--scenario", required=True)
     validate_parser.add_argument("--data-dir")
+    validate_parser.add_argument(
+        "--inputs",
+        help="Path to inputs.yaml (overrides --data-dir)",
+    )
+    validate_parser.add_argument(
+        "--components",
+        help="Path to components.csv (overrides --data-dir)",
+    )
 
     fixture_parser = subparsers.add_parser(
         "fixture-check", help="Verify fixture workbooks"
@@ -59,8 +75,14 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "build":
         try:
             data_dir = Path(args.data_dir) if args.data_dir else None
+            inputs_path = Path(args.inputs) if args.inputs else None
+            components_path = Path(args.components) if args.components else None
             output_path, result = build_workbook(
-                args.scenario, open_file=args.open, data_dir=data_dir
+                args.scenario,
+                open_file=args.open,
+                data_dir=data_dir,
+                inputs_path=inputs_path,
+                components_path=components_path,
             )
         except ValidationError as exc:
             _print_validation(exc.result)
@@ -71,7 +93,14 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "validate":
         data_dir = Path(args.data_dir) if args.data_dir else None
-        result, _, _, _ = validate_scenario(args.scenario, data_dir=data_dir)
+        inputs_path = Path(args.inputs) if args.inputs else None
+        components_path = Path(args.components) if args.components else None
+        result, _, _, _ = validate_scenario(
+            args.scenario,
+            data_dir=data_dir,
+            inputs_path=inputs_path,
+            components_path=components_path,
+        )
         _print_validation(result)
         return 1 if result.errors else 0
 

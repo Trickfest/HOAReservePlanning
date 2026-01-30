@@ -46,6 +46,49 @@ def write_inputs(
 
 
 class ValidationTests(unittest.TestCase):
+    def test_validate_with_override_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            data_dir = root / "data"
+            data_dir.mkdir()
+            write_csv(
+                data_dir / "contributions" / "scenario.csv",
+                ["year", "contribution"],
+                [[2025, 0]],
+            )
+
+            alt_dir = root / "alt"
+            alt_dir.mkdir()
+            inputs_path = alt_dir / "inputs.yaml"
+            components_path = alt_dir / "components.csv"
+            write_inputs(inputs_path, forecast_years=1, starting_year=2025)
+            write_csv(
+                components_path,
+                [
+                    "id",
+                    "name",
+                    "category",
+                    "base_cost",
+                    "spend_year",
+                    "recurring",
+                    "interval_years",
+                    "include",
+                ],
+                [["roof", "Roof", "General", 1000, 2025, "N", "", "Y"]],
+            )
+
+            result, inputs, components, contributions = validate_scenario(
+                "scenario",
+                data_dir=data_dir,
+                inputs_path=inputs_path,
+                components_path=components_path,
+            )
+
+            self.assertEqual(result.errors, [])
+            self.assertEqual(inputs.starting_year, 2025)
+            self.assertEqual(len(components), 1)
+            self.assertIn(2025, contributions)
+
     def test_default_audit_tolerances(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             data_dir = Path(tmpdir)
@@ -328,6 +371,55 @@ class ScheduleAndForecastTests(unittest.TestCase):
 
 
 class CliTests(unittest.TestCase):
+    def test_validate_cli_with_overrides(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            data_dir = root / "data"
+            data_dir.mkdir()
+            write_csv(
+                data_dir / "contributions" / "scenario.csv",
+                ["year", "contribution"],
+                [[2025, 0]],
+            )
+
+            alt_dir = root / "alt"
+            alt_dir.mkdir()
+            inputs_path = alt_dir / "inputs.yaml"
+            components_path = alt_dir / "components.csv"
+            write_inputs(inputs_path, forecast_years=1, starting_year=2025)
+            write_csv(
+                components_path,
+                [
+                    "id",
+                    "name",
+                    "category",
+                    "base_cost",
+                    "spend_year",
+                    "recurring",
+                    "interval_years",
+                    "include",
+                ],
+                [["roof", "Roof", "General", 1000, 2025, "N", "", "Y"]],
+            )
+
+            out = io.StringIO()
+            err = io.StringIO()
+            with redirect_stdout(out), redirect_stderr(err):
+                exit_code = cli_main(
+                    [
+                        "validate",
+                        "--scenario",
+                        "scenario",
+                        "--data-dir",
+                        str(data_dir),
+                        "--inputs",
+                        str(inputs_path),
+                        "--components",
+                        str(components_path),
+                    ]
+                )
+            self.assertEqual(exit_code, 0)
+
     def test_fixture_check_missing_expected(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             data_dir = Path(tmpdir)
