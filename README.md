@@ -23,7 +23,7 @@ What each command does:
 Workbook output:
 
 ```
-dist/HOA_Reserve_Planning_<scenario>.xlsx
+dist/HOA_Reserve_Planning_recommended.xlsx
 ```
 
 ## Funding metrics in the Forecast sheet
@@ -109,6 +109,23 @@ You can override `inputs.yaml` or `components.csv` at runtime with `--inputs` an
 - `FEATURES.max_components_rows`: max rows reserved for Components.
 - `FEATURES.max_schedule_rows`: max rows reserved for Schedule.
 
+
+## Audit settings (debug)
+
+- When `FEATURES.enable_audit` is `true`, the Forecast sheet adds hidden expected-value columns and visible audit flag columns, plus a summary at the end of the Checks sheet. Audit flags display `FAIL` when out of tolerance.
+- Audit flags use `audit_tolerance_amount` and `audit_tolerance_ratio` from `inputs.yaml`.
+- Audit flags are intended for build-time validation; if you edit values directly in the workbook, expect audit failures until you regenerate from the source files.
+- Treat enable_audit as something akin to a "debug=Y" flag.  
+
+
+## Validation notes
+
+- Duplicate contribution years are reported as warnings; the last value wins.
+- If expanded schedule rows exceed `FEATURES.max_schedule_rows`, validation fails so formulas stay in-bounds.
+- Funding metric formulas return blank when the denominator is zero (no fully funded target or no expenses in the 5-year window).
+- Interest is calculated on the beginning-of-year balance only; contributions made in the same year do not earn interest until the following year (worst-case assumption).
+
+
 ## How to add a new component
 
 1. Open `data/components.csv`.
@@ -122,6 +139,14 @@ You can override `inputs.yaml` or `components.csv` at runtime with `--inputs` an
 2. Provide a contribution value for every forecast year.
 3. Run `python -m reserve validate --scenario <scenario>`.
 4. Build with `python -m reserve build --scenario <scenario>`.
+
+
+## Unit Tests
+
+```bash
+python -m unittest discover -s tests
+```
+
 
 ## Fixtures for verification
 
@@ -153,23 +178,3 @@ Machine-readable expectations live in:
 `fixture-check` builds workbooks, verifies formula text and model values, prints a summary, and can remove generated workbooks with `--clean`.
 
 Additional boundary fixtures live under `data/fixtures/boundary_*`.
-
-## Validation notes
-
-- Duplicate contribution years are reported as warnings; the last value wins.
-- If expanded schedule rows exceed `FEATURES.max_schedule_rows`, validation fails so formulas stay in-bounds.
-- Funding metric formulas return blank when the denominator is zero (no fully funded target or no expenses in the 5-year window).
-- Interest is calculated on the beginning-of-year balance only; contributions made in the same year do not earn interest until the following year (worst-case assumption).
-
-## Audit settings (debug)
-
-- When `FEATURES.enable_audit` is `true`, the Forecast sheet adds hidden expected-value columns and visible audit flag columns, plus a summary at the end of the Checks sheet. Audit flags display `FAIL` when out of tolerance.
-- Audit flags use `audit_tolerance_amount` and `audit_tolerance_ratio` from `inputs.yaml`.
-- Audit flags are intended for build-time validation; if you edit values directly in the workbook, expect audit failures until you regenerate from the source files.
-- Treat enable_audit as something akin to a "debug=Y" flag.  
-
-## Tests
-
-```bash
-python -m unittest discover -s tests
-```
