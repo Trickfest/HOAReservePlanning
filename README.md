@@ -147,10 +147,13 @@ You can override `inputs.yaml` or `components.csv` at runtime with `--inputs` an
 python -m unittest discover -s tests
 ```
 
+Unit tests are small, fast checks focused on core Python behavior: input parsing/validation, schedule expansion, forecast math, and CLI wiring. They run in-memory and avoid spreadsheet generation, which keeps them quick and reliable for regression detection. The limitation is they don’t validate the final Excel formulas or workbook rendering; that coverage is handled by fixtures (`fixture-check`) instead.
 
-## Fixtures for verification
+## Fixture Tests
 
-Use the fixture datasets to verify spreadsheet outputs without touching the main data files.
+Use the fixture datasets to verify spreadsheet outputs without touching the main data files.  Fixture tests validate the end-to-end workbook output: they build spreadsheets from known inputs and compare key cell formulas and computed values against expected snapshots. This catches regression in Excel logic and formatting that unit tests can’t see. The tradeoff is they’re slower, generate files, and are only as comprehensive as the fixtures you maintain.
+
+The `expected_values.md` files are human-readable notes that explain the expected results and assumptions. They are not read by the test runner; `fixture-check` uses `expected_values.yaml` as the machine-readable source of truth.
 
 ```bash
 python -m reserve build --scenario simple --data-dir data/fixtures/simple
