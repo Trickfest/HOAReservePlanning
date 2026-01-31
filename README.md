@@ -1,6 +1,6 @@
 # HOA Reserve Planning Model
 
-This project generates a .xlsx reserve planning workbook from simple text files.  The .xlsx is also works with Apple Numbers.
+This project generates a .xlsx reserve planning workbook from simple text files. The .xlsx also works with Apple Numbers.
 
 ## Quick start
 
@@ -25,6 +25,21 @@ Workbook output:
 ```
 dist/HOA_Reserve_Planning_recommended.xlsx
 ```
+
+## Solution architecture overview
+
+The project is a small command‑line application that reads structured text inputs, calculates schedules and forecasts, and writes a spreadsheet with formulas. The workflow is:
+
+1. **Inputs** (`inputs.yaml`, `components.csv`, `contributions/<scenario>.csv`) define assumptions, components, and yearly funding.
+2. **Model & validation** load and validate the inputs, expand recurring components into a Schedule, and compute the forecast model used for checks and audit expectations.
+3. **Workbook generation** writes the Excel file with multiple sheets (Inputs, Components, Schedule, Forecast, Checks, Dashboard), formulas, and formatting.
+4. **Verification** uses fixtures (`fixture-check`) to compare expected formulas/values against generated workbooks.
+
+Key ideas:
+- The Schedule sheet is the single source of truth for expense timing.
+- The Forecast sheet derives expenses from the Schedule and calculates balances and funding metrics.
+- The Checks sheet summarizes health metrics and optional audit results.
+- The generated workbook is intended for review and light “what‑if” edits; structural changes should be made in the source files and rebuilt.
 
 ## Funding metrics in the Forecast sheet
 
@@ -181,3 +196,65 @@ Machine-readable expectations live in:
 `fixture-check` builds workbooks, verifies formula text and model values, prints a summary, and can remove generated workbooks with `--clean`.
 
 Additional boundary fixtures live under `data/fixtures/boundary_*`.
+
+## Appendix: Additional Reference
+
+### CLI command summary
+- `build`: generate a workbook for a scenario.
+- `validate`: validate inputs/components/contributions for a scenario.
+- `fixture-check`: build fixtures and compare workbook outputs to expectations.
+- `clean`: remove generated workbooks from `dist/`.
+
+Common flags:
+- `--scenario`: scenario name (matches `data/contributions/<scenario>.csv`).
+- `--data-dir`: base directory for data files.
+- `--inputs`: path to an alternate `inputs.yaml`.
+- `--components`: path to an alternate `components.csv`.
+- `--open`: open the generated workbook (macOS).
+
+### CSV format examples
+`components.csv`:
+```csv
+id,name,category,base_cost,spend_year,recurring,interval_years,include
+roof,Roof,General,1000000,2036,N,,Y
+pool,Pool,Exterior,250000,2030,Y,5,Y
+```
+
+`contributions.csv`:
+```csv
+year,contribution
+2026,50000
+2027,51500
+```
+
+Notes:
+- `recurring` and `include` accept `Y` or `N`.
+- `interval_years` is required when `recurring = Y`.
+
+### Troubleshooting common warnings
+- **spend_year outside forecast window**: increase `FEATURES.forecast_years` or adjust the component’s `spend_year`.
+- **duplicate contribution years**: the last value wins; remove duplicates if unintended.
+
+### Spreadsheet limitations
+- Formulas use bounded ranges to stay Numbers-friendly and avoid whole-column references.
+- Audit flags show `FAIL` text rather than conditional formatting because Numbers ignores some conditional rules.
+
+### Regeneration reminder
+`dist/` is generated output. After editing inputs or CSVs, rerun `python -m reserve build --scenario <scenario>` to regenerate the workbook.
+
+### What you can edit in a generated workbook
+The workbook is intended for quick what‑if checks, but most of the structure is generated from the source files.
+
+Safe to edit for quick what‑ifs (no rebuild required):
+- Forecast contributions (Forecast column C).
+- Component `base_cost` (formulas reference it directly).
+
+Requires a rebuild to be correct:
+- Inputs (`starting_year`, rates, `spend_inflation_timing`, features, audit tolerances).
+- Any timing changes (`spend_year`, `recurring`, `interval_years`) or adding/removing components.
+- Changing the component `include` flag (Schedule rows won’t update without a rebuild).
+- Forecast horizon (`FEATURES.forecast_years`) or schedule expansion toggles.
+
+Rule of thumb: edit **contributions and costs** in the workbook; edit **structure/timing/assumptions** in the source files and rebuild.
+
+Note: if `FEATURES.enable_audit` is enabled, changing contributions or component costs in the workbook will cause audit flags to show `FAIL` because expected values were generated at build time. Rebuild to clear audit failures.
