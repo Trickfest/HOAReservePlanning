@@ -210,6 +210,122 @@ class ValidationTests(unittest.TestCase):
                 "components.csv row 2: interval_years must be an integer", result.errors
             )
 
+    def test_missing_base_cost(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            data_dir = Path(tmpdir)
+            write_inputs(data_dir / "inputs.yaml", forecast_years=1)
+            write_csv(
+                data_dir / "components.csv",
+                [
+                    "id",
+                    "name",
+                    "category",
+                    "base_cost",
+                    "spend_year",
+                    "recurring",
+                    "interval_years",
+                    "include",
+                ],
+                [["item", "Item", "General", "", 2025, "N", "", "Y"]],
+            )
+            write_csv(
+                data_dir / "contributions" / "scenario.csv",
+                ["year", "contribution"],
+                [[2025, 0]],
+            )
+            result, _, _, _ = validate_scenario("scenario", data_dir=data_dir)
+            self.assertIn(
+                "components.csv row 2: base_cost is required", result.errors
+            )
+
+    def test_non_numeric_base_cost(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            data_dir = Path(tmpdir)
+            write_inputs(data_dir / "inputs.yaml", forecast_years=1)
+            write_csv(
+                data_dir / "components.csv",
+                [
+                    "id",
+                    "name",
+                    "category",
+                    "base_cost",
+                    "spend_year",
+                    "recurring",
+                    "interval_years",
+                    "include",
+                ],
+                [["item", "Item", "General", "abc", 2025, "N", "", "Y"]],
+            )
+            write_csv(
+                data_dir / "contributions" / "scenario.csv",
+                ["year", "contribution"],
+                [[2025, 0]],
+            )
+            result, _, _, _ = validate_scenario("scenario", data_dir=data_dir)
+            self.assertIn(
+                "components.csv row 2: base_cost must be a number", result.errors
+            )
+
+    def test_base_cost_bounds(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            data_dir = Path(tmpdir)
+            write_inputs(data_dir / "inputs.yaml", forecast_years=1)
+            write_csv(
+                data_dir / "contributions" / "scenario.csv",
+                ["year", "contribution"],
+                [[2025, 0]],
+            )
+
+            cases = [
+                (0, "components.csv row 2: base_cost must be > 0"),
+                (-5, "components.csv row 2: base_cost must be > 0"),
+                (10000001, "components.csv row 2: base_cost must be <= 10000000"),
+            ]
+            for value, expected in cases:
+                write_csv(
+                    data_dir / "components.csv",
+                    [
+                        "id",
+                        "name",
+                        "category",
+                        "base_cost",
+                        "spend_year",
+                        "recurring",
+                        "interval_years",
+                        "include",
+                    ],
+                    [["item", "Item", "General", value, 2025, "N", "", "Y"]],
+                )
+                result, _, _, _ = validate_scenario("scenario", data_dir=data_dir)
+                self.assertIn(expected, result.errors)
+
+    def test_nonrecurring_interval_ignored(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            data_dir = Path(tmpdir)
+            write_inputs(data_dir / "inputs.yaml", forecast_years=1)
+            write_csv(
+                data_dir / "components.csv",
+                [
+                    "id",
+                    "name",
+                    "category",
+                    "base_cost",
+                    "spend_year",
+                    "recurring",
+                    "interval_years",
+                    "include",
+                ],
+                [["item", "Item", "General", 100, 2025, "N", "N/A", "Y"]],
+            )
+            write_csv(
+                data_dir / "contributions" / "scenario.csv",
+                ["year", "contribution"],
+                [[2025, 0]],
+            )
+            result, _, components, _ = validate_scenario("scenario", data_dir=data_dir)
+            self.assertEqual(result.errors, [])
+            self.assertIsNone(components[0].interval_years)
+
     def test_missing_columns_components(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             data_dir = Path(tmpdir)
@@ -445,6 +561,34 @@ class CliTests(unittest.TestCase):
                     ]
                 )
             self.assertEqual(exit_code, 0)
+
+    def test_validate_cli_invalid_inputs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            data_dir = Path(tmpdir)
+            inputs_path = data_dir / "inputs.yaml"
+            inputs_path.write_text(
+                "beginning_reserve_balance: 0\n"
+                "inflation_rate: 0\n"
+                "investment_return_rate: 0\n"
+                "FEATURES:\n"
+                "  forecast_years: 1\n"
+            )
+            out = io.StringIO()
+            err = io.StringIO()
+            with redirect_stdout(out), redirect_stderr(err):
+                exit_code = cli_main(
+                    [
+                        "validate",
+                        "--scenario",
+                        "scenario",
+                        "--data-dir",
+                        str(data_dir),
+                        "--inputs",
+                        str(inputs_path),
+                    ]
+                )
+            self.assertEqual(exit_code, 1)
+            self.assertIn("Missing required input: starting_year", err.getvalue())
 
     def test_fixture_check_missing_expected(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

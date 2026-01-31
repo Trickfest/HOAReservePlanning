@@ -92,15 +92,19 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "validate":
-        data_dir = Path(args.data_dir) if args.data_dir else None
-        inputs_path = Path(args.inputs) if args.inputs else None
-        components_path = Path(args.components) if args.components else None
-        result, _, _, _ = validate_scenario(
-            args.scenario,
-            data_dir=data_dir,
-            inputs_path=inputs_path,
-            components_path=components_path,
-        )
+        try:
+            data_dir = Path(args.data_dir) if args.data_dir else None
+            inputs_path = Path(args.inputs) if args.inputs else None
+            components_path = Path(args.components) if args.components else None
+            result, _, _, _ = validate_scenario(
+                args.scenario,
+                data_dir=data_dir,
+                inputs_path=inputs_path,
+                components_path=components_path,
+            )
+        except ValidationError as exc:
+            _print_validation(exc.result)
+            return 1
         _print_validation(result)
         return 1 if result.errors else 0
 

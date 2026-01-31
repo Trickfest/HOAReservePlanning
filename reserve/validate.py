@@ -6,6 +6,8 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 from .constants import DATA_DIR
+
+MAX_BASE_COST = 10_000_000
 from .model import Component, Inputs, load_components, load_inputs
 from .schedule import expand_schedule
 
@@ -125,6 +127,27 @@ def _validate_components_csv(path: Path, inputs: Inputs) -> Tuple[List[str], Lis
                 )
             if include not in {"Y", "N"}:
                 errors.append(f"components.csv row {row_number}: include must be Y or N")
+
+            base_cost_raw = (row.get("base_cost") or "").strip()
+            if base_cost_raw == "":
+                errors.append(
+                    f"components.csv row {row_number}: base_cost is required"
+                )
+            else:
+                try:
+                    base_cost = float(base_cost_raw)
+                    if base_cost <= 0:
+                        errors.append(
+                            f"components.csv row {row_number}: base_cost must be > 0"
+                        )
+                    elif base_cost > MAX_BASE_COST:
+                        errors.append(
+                            f"components.csv row {row_number}: base_cost must be <= {MAX_BASE_COST}"
+                        )
+                except ValueError:
+                    errors.append(
+                        f"components.csv row {row_number}: base_cost must be a number"
+                    )
 
             spend_year_raw = (row.get("spend_year") or "").strip()
             if spend_year_raw:

@@ -10,13 +10,7 @@ Backlog for features, improvements, research, fixes, etc.
 
 * Charts
 
-* Add ability to specify an alternative components file
-
-* Add ability to specify an alternative inputs file
-
 ### Research
-
-* Verify math manually
 
 * Test with Excel on Mac
 
@@ -26,7 +20,7 @@ Backlog for features, improvements, research, fixes, etc.
 
 ### Bugs
 
-* In the spreadsheet, the contributions column is in a different color. It probably shouldn't be.
+* In the spreadsheet, the contributions column is in a different color. It probably shouldn't be.  Or maybe it should.
 
 
 

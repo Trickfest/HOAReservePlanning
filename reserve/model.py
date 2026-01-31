@@ -154,8 +154,10 @@ def load_components(path: Path | None = None, data_dir: Path | None = None) -> L
             recurring_flag = (row.get("recurring") or "").strip().upper()
             include_flag = (row.get("include") or "").strip().upper()
 
-            interval_raw = (row.get("interval_years") or "").strip()
-            interval_val = int(interval_raw) if interval_raw else None
+            interval_val = None
+            if recurring_flag == "Y":
+                interval_raw = (row.get("interval_years") or "").strip()
+                interval_val = int(interval_raw) if interval_raw else None
 
             row_index = len(components) + 2
             component = Component(
