@@ -12,6 +12,14 @@ python -m reserve validate --scenario recommended
 python -m reserve build --scenario recommended
 ```
 
+What each command does:
+
+- `python -m venv .venv`: create a local virtual environment.
+- `source .venv/bin/activate`: activate the virtual environment in your shell.
+- `pip install -e .`: install the package and dependencies in editable mode.
+- `python -m reserve validate --scenario recommended`: validate inputs/components/contributions for the scenario.
+- `python -m reserve build --scenario recommended`: generate the workbook in `dist/`.
+
 Workbook output:
 
 ```
@@ -23,7 +31,7 @@ dist/HOA_Reserve_Planning_<scenario>.xlsx
 Reserve planning balances near-term cash needs with long-term component funding. The Forecast tab reports both so you can see liquidity and funding adequacy year by year.
 
 Glossary (Forecast tab terms):
-- **Inflated cost**: `inflated_cost = base_cost * (1 + inflation_rate)^(year - starting_year)`; the exponent is the number of years after the starting year.
+- **Inflated cost**: `inflated_cost = base_cost * (1 + inflation_rate)^(year - starting_year + spend_inflation_offset)`; the exponent is the number of years after the starting year plus the timing offset (start_of_year = 0.0, mid_year = 0.5, end_of_year = 1.0; default is end_of_year).
 - **Fully funded balance (FFB)**: the sum of each component’s funded portion, where funded portion is the inflated current cost multiplied by the fraction of useful life elapsed (linear funding). Recurring items use `interval_years`; non-recurring items fund linearly from `starting_year` to `spend_year`.
 - **Useful life**: the time (in years) over which a component is expected to be used before replacement. For recurring items this is `interval_years`; for non-recurring items it is `spend_year - starting_year`.
 - **percent_funded**: beginning-of-year balance ÷ FFB. Around 100% means fully funded; below 100% indicates underfunded, above 100% indicates surplus relative to target.
@@ -31,9 +39,9 @@ Glossary (Forecast tab terms):
 - **cumulative_contributions**: running total of contributions to date.
 - **cumulative_interest**: running total of interest to date.
 
-Examples (starting year 2026):
-- Recurring example: Roof replacement costs $100,000 today, inflation 3%, interval 10 years. In year 2030 (4 years after 2026), inflated cost is $100,000 × 1.03^4 ≈ $112,551. If 4 of 10 years have elapsed, funded portion is 4/10 × $112,551 ≈ $45,020.
-- Non-recurring example: Paint project costs $20,000 today, inflation 3%, spend year 2031 (5 years from 2026). In year 2029 (3 years after 2026), inflated cost is $20,000 × 1.03^3 ≈ $21,855. Funded fraction is 3/5, so funded portion ≈ $13,113.
+Examples (starting year 2026, spend_inflation_timing = end_of_year so offset = 1.0):
+- Recurring example: Roof replacement costs $100,000 today, inflation 3%, interval 10 years. In year 2030 (4 years after 2026), inflated cost is $100,000 × 1.03^5 ≈ $115,927. If 4 of 10 years have elapsed, funded portion is 4/10 × $115,927 ≈ $46,371.
+- Non-recurring example: Paint project costs $20,000 today, inflation 3%, spend year 2031 (5 years from 2026). In year 2029 (3 years after 2026), inflated cost is $20,000 × 1.03^4 ≈ $22,511. Funded fraction is 3/5, so funded portion ≈ $13,507.
 
 ## Calculation Details
 
@@ -151,6 +159,7 @@ Additional boundary fixtures live under `data/fixtures/boundary_*`.
 - Duplicate contribution years are reported as warnings; the last value wins.
 - If expanded schedule rows exceed `FEATURES.max_schedule_rows`, validation fails so formulas stay in-bounds.
 - Funding metric formulas return blank when the denominator is zero (no fully funded target or no expenses in the 5-year window).
+- Interest is calculated on the beginning-of-year balance only; contributions made in the same year do not earn interest until the following year (worst-case assumption).
 
 ## Audit settings (debug)
 
