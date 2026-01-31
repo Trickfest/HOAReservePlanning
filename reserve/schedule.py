@@ -41,6 +41,7 @@ def expand_schedule(components: List[Component], inputs: Inputs) -> List[Schedul
                 years.append(component.spend_year)
 
         for year in years:
+            # Precompute nominal expense with inflation so Schedule is a single source of truth.
             nominal = component.base_cost * (
                 (1 + inputs.inflation_rate) ** (year - start_year + inflation_offset)
             )

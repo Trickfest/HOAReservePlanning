@@ -282,6 +282,7 @@ def _write_schedule_sheet(ws, inputs: Inputs, schedule_items: List[ScheduleItem]
     start_row = 2
     inflation_cell = f"Inputs!$B${INPUT_ROWS['inflation_rate']}"
     start_year_cell = f"Inputs!$B${INPUT_ROWS['starting_year']}"
+    # spend_inflation_offset models timing (start/mid/end of year) in the exponent.
     inflation_offset = _format_inflation_offset(inputs.spend_inflation_offset)
 
     for idx, item in enumerate(schedule_items, start=start_row):
@@ -431,6 +432,7 @@ def _write_forecast_sheet(
         expected_rows = _compute_audit_expected(
             inputs, components, schedule_items, contributions
         )
+        # Build-time expected values let us flag formula regressions in the workbook.
         expected_start_col = len(base_headers) + 1
         amount_tol_cell = f"Inputs!$B${INPUT_ROWS['audit_tolerance_amount']}"
         ratio_tol_cell = f"Inputs!$B${INPUT_ROWS['audit_tolerance_ratio']}"
@@ -493,6 +495,7 @@ def _write_forecast_sheet(
             f"IF({interval_range}>0,{interval_range},1),1)"
             f"*{interval_range}-{year_cell})"
         )
+        # Recurring items "reset" after each replacement; age is based on the next spend year.
         recurring_age = f"({interval_range}-({years_to_next}))"
         recurring_fraction = (
             f"IF({interval_range}<=0,0,"
