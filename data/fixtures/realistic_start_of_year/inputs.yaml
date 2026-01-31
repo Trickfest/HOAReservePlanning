@@ -1,15 +1,15 @@
 starting_year: 2025
-beginning_reserve_balance: 250000
+beginning_reserve_balance: 180000
 inflation_rate: 0.03
 investment_return_rate: 0.02
-spend_inflation_timing: end_of_year
+spend_inflation_timing: start_of_year
 audit_tolerance_amount: 0.01
 audit_tolerance_ratio: 0.0001
 FEATURES:
-  forecast_years: 40
+  forecast_years: 10
   enable_checks: true
   enable_dashboard: true
   enable_schedule_expansion: true
-  enable_audit: false
-  max_components_rows: 500
-  max_schedule_rows: 10000
+  enable_audit: true
+  max_components_rows: 100
+  max_schedule_rows: 500

@@ -12,6 +12,8 @@ from .constants import (
     DEFAULT_AUDIT_TOLERANCE_AMOUNT,
     DEFAULT_AUDIT_TOLERANCE_RATIO,
     DEFAULT_FEATURES,
+    DEFAULT_SPEND_INFLATION_OFFSET,
+    DEFAULT_SPEND_INFLATION_TIMING,
 )
 
 
@@ -23,6 +25,8 @@ class Inputs:
     inflation_rate: float
     investment_return_rate: float
     features: Dict[str, object]
+    spend_inflation_timing: str = DEFAULT_SPEND_INFLATION_TIMING
+    spend_inflation_offset: float = DEFAULT_SPEND_INFLATION_OFFSET
     audit_tolerance_amount: float = DEFAULT_AUDIT_TOLERANCE_AMOUNT
     audit_tolerance_ratio: float = DEFAULT_AUDIT_TOLERANCE_RATIO
 
@@ -60,6 +64,19 @@ def _resolve_data_dir(data_dir: Path | None) -> Path:
     return data_dir if data_dir is not None else DATA_DIR
 
 
+def _parse_spend_inflation_timing(value: str) -> float:
+    normalized = value.strip().lower()
+    if normalized == "start_of_year":
+        return 0.0
+    if normalized == "mid_year":
+        return 0.5
+    if normalized == "end_of_year":
+        return 1.0
+    raise ValueError(
+        "spend_inflation_timing must be one of: start_of_year, mid_year, end_of_year"
+    )
+
+
 def load_inputs(path: Path | None = None, data_dir: Path | None = None) -> Inputs:
     if path is None:
         path = _resolve_data_dir(data_dir) / "inputs.yaml"
@@ -80,6 +97,11 @@ def load_inputs(path: Path | None = None, data_dir: Path | None = None) -> Input
     inflation_rate = float(_require(raw, "inflation_rate"))
     investment_return_rate = float(_require(raw, "investment_return_rate"))
 
+    spend_inflation_timing = str(
+        raw.get("spend_inflation_timing", DEFAULT_SPEND_INFLATION_TIMING)
+    )
+    spend_inflation_offset = _parse_spend_inflation_timing(spend_inflation_timing)
+
     audit_tolerance_amount = float(
         raw.get("audit_tolerance_amount", DEFAULT_AUDIT_TOLERANCE_AMOUNT)
     )
@@ -96,6 +118,8 @@ def load_inputs(path: Path | None = None, data_dir: Path | None = None) -> Input
         audit_tolerance_amount=audit_tolerance_amount,
         audit_tolerance_ratio=audit_tolerance_ratio,
         features=features,
+        spend_inflation_timing=spend_inflation_timing,
+        spend_inflation_offset=spend_inflation_offset,
     )
 
 

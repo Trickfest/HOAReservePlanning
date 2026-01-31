@@ -19,17 +19,18 @@ INPUT_ROWS = {
     "beginning_reserve_balance": 3,
     "inflation_rate": 4,
     "investment_return_rate": 5,
-    "audit_tolerance_amount": 6,
-    "audit_tolerance_ratio": 7,
+    "spend_inflation_timing": 6,
+    "audit_tolerance_amount": 7,
+    "audit_tolerance_ratio": 8,
 }
 FEATURE_ROWS = {
-    "forecast_years": 10,
-    "enable_checks": 11,
-    "enable_dashboard": 12,
-    "enable_schedule_expansion": 13,
-    "enable_audit": 14,
-    "max_components_rows": 15,
-    "max_schedule_rows": 16,
+    "forecast_years": 11,
+    "enable_checks": 12,
+    "enable_dashboard": 13,
+    "enable_schedule_expansion": 14,
+    "enable_audit": 15,
+    "max_components_rows": 16,
+    "max_schedule_rows": 17,
 }
 
 FORECAST_HEADERS = [
@@ -45,6 +46,14 @@ FORECAST_HEADERS = [
     "coverage_5yr",
 ]
 AUDIT_RATIO_HEADERS = {"percent_funded", "coverage_5yr"}
+
+
+def _format_inflation_offset(offset: float) -> str:
+    if offset == 0:
+        return ""
+    if offset.is_integer():
+        return f"+{int(offset)}"
+    return f"+{offset}"
 
 
 def build_workbook(
@@ -130,6 +139,7 @@ def _write_inputs_sheet(ws, inputs: Inputs) -> None:
         ("beginning_reserve_balance", inputs.beginning_reserve_balance, "Opening reserve balance"),
         ("inflation_rate", inputs.inflation_rate, "Annual inflation rate"),
         ("investment_return_rate", inputs.investment_return_rate, "Annual investment return"),
+        ("spend_inflation_timing", inputs.spend_inflation_timing, "Timing for spend inflation (start_of_year, mid_year, end_of_year)"),
         ("audit_tolerance_amount", inputs.audit_tolerance_amount, "Audit tolerance for dollar values"),
         ("audit_tolerance_ratio", inputs.audit_tolerance_ratio, "Audit tolerance for ratios (percent funded, coverage)"),
     ]
@@ -181,6 +191,7 @@ def _write_inputs_sheet(ws, inputs: Inputs) -> None:
     ws.cell(row=INPUT_ROWS["beginning_reserve_balance"], column=2).number_format = "#,##0"
     ws.cell(row=INPUT_ROWS["inflation_rate"], column=2).number_format = "0.00%"
     ws.cell(row=INPUT_ROWS["investment_return_rate"], column=2).number_format = "0.00%"
+    ws.cell(row=INPUT_ROWS["spend_inflation_timing"], column=2).number_format = "@"
     ws.cell(row=INPUT_ROWS["audit_tolerance_amount"], column=2).number_format = "#,##0.00"
     ws.cell(row=INPUT_ROWS["audit_tolerance_ratio"], column=2).number_format = "0.00%"
 
@@ -194,6 +205,7 @@ def _write_inputs_sheet(ws, inputs: Inputs) -> None:
         f"beginning_reserve_balance: {inputs.beginning_reserve_balance:,.0f}",
         f"inflation_rate: {inputs.inflation_rate:.2%}",
         f"investment_return_rate: {inputs.investment_return_rate:.2%}",
+        f"spend_inflation_timing: {inputs.spend_inflation_timing}",
         f"audit_tolerance_amount: {inputs.audit_tolerance_amount:,.2f}",
         f"audit_tolerance_ratio: {inputs.audit_tolerance_ratio:.4%}",
         "",
@@ -270,6 +282,7 @@ def _write_schedule_sheet(ws, inputs: Inputs, schedule_items: List[ScheduleItem]
     start_row = 2
     inflation_cell = f"Inputs!$B${INPUT_ROWS['inflation_rate']}"
     start_year_cell = f"Inputs!$B${INPUT_ROWS['starting_year']}"
+    inflation_offset = _format_inflation_offset(inputs.spend_inflation_offset)
 
     for idx, item in enumerate(schedule_items, start=start_row):
         ws.cell(row=idx, column=1, value=item.year)
@@ -277,7 +290,10 @@ def _write_schedule_sheet(ws, inputs: Inputs, schedule_items: List[ScheduleItem]
         ws.cell(row=idx, column=3, value=item.component_name)
 
         base_cost_cell = f"Components!$D${item.component_row}"
-        formula = f"={base_cost_cell}*(1+{inflation_cell})^(A{idx}-{start_year_cell})"
+        formula = (
+            f"={base_cost_cell}*(1+{inflation_cell})^"
+            f"(A{idx}-{start_year_cell}{inflation_offset})"
+        )
         cell = ws.cell(row=idx, column=4, value=formula)
         cell.number_format = "#,##0"
 
@@ -298,7 +314,8 @@ def _fully_funded_balance(
             continue
 
         inflated_cost = component.base_cost * (
-            (1 + inputs.inflation_rate) ** (year - inputs.starting_year)
+            (1 + inputs.inflation_rate)
+            ** (year - inputs.starting_year + inputs.spend_inflation_offset)
         )
 
         if component.recurring:
@@ -400,6 +417,7 @@ def _write_forecast_sheet(
 
     start_year_cell = f"Inputs!$B${INPUT_ROWS['starting_year']}"
     inflation_cell = f"Inputs!$B${INPUT_ROWS['inflation_rate']}"
+    inflation_offset = _format_inflation_offset(inputs.spend_inflation_offset)
 
     base_cost_range = f"Components!$D$2:$D${components_end_row}"
     spend_year_range = f"Components!$E$2:$E${components_end_row}"
@@ -466,7 +484,7 @@ def _write_forecast_sheet(
         ws.cell(row=row, column=8, value=end_formula)
 
         year_cell = f"A{row}"
-        inflation_factor = f"(1+{inflation_cell})^({year_cell}-{start_year_cell})"
+        inflation_factor = f"(1+{inflation_cell})^({year_cell}-{start_year_cell}{inflation_offset})"
 
         years_to_next = (
             f"IF({year_cell}<={spend_year_range},"

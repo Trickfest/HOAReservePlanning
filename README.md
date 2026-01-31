@@ -84,6 +84,23 @@ python -m reserve build --scenario recommended --inputs path/to/inputs.yaml --co
 
 You can override `inputs.yaml` or `components.csv` at runtime with `--inputs` and `--components` on `build` or `validate`. Contributions still come from `--data-dir` (or `data/` by default).
 
+## Input settings
+
+- `starting_year`: first year of the forecast.
+- `beginning_reserve_balance`: opening reserve balance (dollars).
+- `inflation_rate`: annual inflation rate (decimal, e.g., `0.03`).
+- `investment_return_rate`: annual investment return rate (decimal, e.g., `0.02`).
+- `spend_inflation_timing`: how to time inflation on spend years. Allowed values are `start_of_year`, `mid_year`, and `end_of_year` (default `end_of_year`).
+- `audit_tolerance_amount`: absolute tolerance for dollar columns (default `0.01`).
+- `audit_tolerance_ratio`: tolerance for ratio columns like `percent_funded` and `coverage_5yr` (default `0.0001`, or 0.01%).
+- `FEATURES.forecast_years`: forecast horizon in years.
+- `FEATURES.enable_checks`: include the Checks sheet.
+- `FEATURES.enable_dashboard`: include the Dashboard sheet.
+- `FEATURES.enable_schedule_expansion`: expand recurring components into Schedule rows.
+- `FEATURES.enable_audit`: include audit columns and summary checks (debug).
+- `FEATURES.max_components_rows`: max rows reserved for Components.
+- `FEATURES.max_schedule_rows`: max rows reserved for Schedule.
+
 ## How to add a new component
 
 1. Open `data/components.csv`.
@@ -104,21 +121,23 @@ Use the fixture datasets to verify spreadsheet outputs without touching the main
 
 ```bash
 python -m reserve build --scenario simple --data-dir data/fixtures/simple
-python -m reserve build --scenario realistic --data-dir data/fixtures/realistic
+python -m reserve build --scenario realistic_end_of_year --data-dir data/fixtures/realistic_end_of_year
 ```
 
 Automated fixture checks:
 
 ```bash
 python -m reserve fixture-check --scenario simple --data-dir data/fixtures/simple
-python -m reserve fixture-check --scenario realistic --data-dir data/fixtures/realistic
+python -m reserve fixture-check --scenario realistic_end_of_year --data-dir data/fixtures/realistic_end_of_year
 python -m reserve fixture-check --all
 python -m reserve fixture-check --all --clean
 ```
 
 Expected checks are documented in:
 - `data/fixtures/simple/expected_values.md`
-- `data/fixtures/realistic/expected_values.md`
+- `data/fixtures/realistic_end_of_year/expected_values.md`
+- `data/fixtures/realistic_start_of_year/expected_values.md`
+- `data/fixtures/realistic_mid_year/expected_values.md`
 
 Machine-readable expectations live in:
 - `data/fixtures/**/expected_values.yaml`
@@ -135,10 +154,9 @@ Additional boundary fixtures live under `data/fixtures/boundary_*`.
 
 ## Audit settings (debug)
 
-- `FEATURES.enable_audit`: when `true`, adds hidden expected-value columns and visible audit flag columns to the Forecast sheet plus a summary at the end of the Checks sheet. Audit flags display `FAIL` when out of tolerance.
-- `audit_tolerance_amount`: absolute tolerance for dollar columns (default `0.01`).
-- `audit_tolerance_ratio`: tolerance for ratio columns like `percent_funded` and `coverage_5yr` (default `0.0001`, or 0.01%).
-- Audit flags are intended for build-time validation; if you edit values directly in the workbook, expect audit failures until you regenerate from the source files. 
+- When `FEATURES.enable_audit` is `true`, the Forecast sheet adds hidden expected-value columns and visible audit flag columns, plus a summary at the end of the Checks sheet. Audit flags display `FAIL` when out of tolerance.
+- Audit flags use `audit_tolerance_amount` and `audit_tolerance_ratio` from `inputs.yaml`.
+- Audit flags are intended for build-time validation; if you edit values directly in the workbook, expect audit failures until you regenerate from the source files.
 - Treat enable_audit as something akin to a "debug=Y" flag.  
 
 ## Tests

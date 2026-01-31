@@ -20,6 +20,7 @@ def expand_schedule(components: List[Component], inputs: Inputs) -> List[Schedul
     start_year = inputs.starting_year
     end_year = start_year + inputs.forecast_years - 1
     schedule: List[ScheduleItem] = []
+    inflation_offset = inputs.spend_inflation_offset
 
     for component in components:
         if not component.include:
@@ -41,7 +42,7 @@ def expand_schedule(components: List[Component], inputs: Inputs) -> List[Schedul
 
         for year in years:
             nominal = component.base_cost * (
-                (1 + inputs.inflation_rate) ** (year - start_year)
+                (1 + inputs.inflation_rate) ** (year - start_year + inflation_offset)
             )
             schedule.append(
                 ScheduleItem(

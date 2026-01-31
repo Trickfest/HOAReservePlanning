@@ -2,6 +2,7 @@ starting_year: 2025
 beginning_reserve_balance: 500
 inflation_rate: 0.0
 investment_return_rate: 0.0
+spend_inflation_timing: end_of_year
 audit_tolerance_amount: 0.01
 audit_tolerance_ratio: 0.0001
 FEATURES:

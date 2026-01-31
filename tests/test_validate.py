@@ -26,6 +26,7 @@ def write_inputs(
     beginning_reserve_balance: float = 0.0,
     inflation_rate: float = 0.0,
     investment_return_rate: float = 0.0,
+    spend_inflation_timing: str | None = None,
     enable_schedule_expansion: bool = True,
     max_schedule_rows: int = 20,
 ) -> None:
@@ -34,6 +35,10 @@ def write_inputs(
         f"beginning_reserve_balance: {beginning_reserve_balance}\n"
         f"inflation_rate: {inflation_rate}\n"
         f"investment_return_rate: {investment_return_rate}\n"
+    )
+    if spend_inflation_timing is not None:
+        content += f"spend_inflation_timing: {spend_inflation_timing}\n"
+    content += (
         "FEATURES:\n"
         f"  forecast_years: {forecast_years}\n"
         "  enable_checks: true\n"
@@ -46,6 +51,25 @@ def write_inputs(
 
 
 class ValidationTests(unittest.TestCase):
+    def test_spend_inflation_timing_variants(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            data_dir = Path(tmpdir)
+            inputs_path = data_dir / "inputs.yaml"
+
+            for timing, offset in (
+                ("start_of_year", 0.0),
+                ("mid_year", 0.5),
+                ("end_of_year", 1.0),
+            ):
+                write_inputs(
+                    inputs_path,
+                    forecast_years=1,
+                    spend_inflation_timing=timing,
+                )
+                inputs = load_inputs(path=inputs_path)
+                self.assertEqual(inputs.spend_inflation_timing, timing)
+                self.assertAlmostEqual(inputs.spend_inflation_offset, offset, places=6)
+
     def test_validate_with_override_paths(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
@@ -96,6 +120,8 @@ class ValidationTests(unittest.TestCase):
             inputs = load_inputs(data_dir=data_dir)
             self.assertAlmostEqual(inputs.audit_tolerance_amount, 0.01, places=4)
             self.assertAlmostEqual(inputs.audit_tolerance_ratio, 0.0001, places=6)
+            self.assertEqual(inputs.spend_inflation_timing, "end_of_year")
+            self.assertAlmostEqual(inputs.spend_inflation_offset, 1.0, places=6)
 
     def test_invalid_flags(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

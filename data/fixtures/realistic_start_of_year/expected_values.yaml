@@ -1,4 +1,4 @@
-scenario: realistic
+scenario: realistic_start_of_year
 expect:
   validation:
     errors: []
@@ -43,7 +43,7 @@ expect:
     schedule:
     - year: 2025
       component_id: tree_pruning
-      nominal_expense: 12000
+      nominal_expense: 12000.0
     - year: 2032
       component_id: roof_replace
       nominal_expense: 295169.72770196886
@@ -54,7 +54,7 @@ expect:
       tolerance: 0.01
     forecast:
     - year: 2025
-      end_balance: 281600
+      end_balance: 281600.0
     - year: 2032
       end_balance: 518883.4112274243
       tolerance: 0.01

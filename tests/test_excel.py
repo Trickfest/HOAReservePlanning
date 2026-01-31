@@ -8,11 +8,15 @@ from reserve.schedule import expand_schedule
 
 
 def _expected_percent_funded_formula(
-    row: int, forecast_years: int, max_components_rows: int
+    row: int,
+    forecast_years: int,
+    max_components_rows: int,
+    spend_inflation_offset: float,
 ) -> str:
     start_year_cell = f"Inputs!$B${excel.INPUT_ROWS['starting_year']}"
     inflation_cell = f"Inputs!$B${excel.INPUT_ROWS['inflation_rate']}"
     year_cell = f"A{row}"
+    inflation_offset = excel._format_inflation_offset(spend_inflation_offset)
 
     components_end_row = 1 + max_components_rows
     base_cost_range = f"Components!$D$2:$D${components_end_row}"
@@ -21,7 +25,7 @@ def _expected_percent_funded_formula(
     interval_range = f"Components!$G$2:$G${components_end_row}"
     include_range = f"Components!$H$2:$H${components_end_row}"
 
-    inflation_factor = f"(1+{inflation_cell})^({year_cell}-{start_year_cell})"
+    inflation_factor = f"(1+{inflation_cell})^({year_cell}-{start_year_cell}{inflation_offset})"
 
     years_to_next = (
         f"IF({year_cell}<={spend_year_range},"
@@ -146,7 +150,10 @@ class ExcelTests(unittest.TestCase):
         self.assertEqual(
             forecast_ws["I2"].value,
             _expected_percent_funded_formula(
-                2, inputs.forecast_years, inputs.features["max_components_rows"]
+                2,
+                inputs.forecast_years,
+                inputs.features["max_components_rows"],
+                inputs.spend_inflation_offset,
             ),
         )
         self.assertEqual(
@@ -156,6 +163,54 @@ class ExcelTests(unittest.TestCase):
 
         self.assertEqual(forecast_ws["I2"].number_format, "0.00%")
         self.assertEqual(forecast_ws["J2"].number_format, "0.00")
+
+    def test_schedule_formula_spend_inflation_timing_variants(self) -> None:
+        variants = [
+            ("start_of_year", 0.0, ""),
+            ("mid_year", 0.5, "+0.5"),
+            ("end_of_year", 1.0, "+1"),
+        ]
+
+        for timing, offset, suffix in variants:
+            inputs = Inputs(
+                starting_year=2025,
+                forecast_years=2,
+                beginning_reserve_balance=0.0,
+                inflation_rate=0.02,
+                investment_return_rate=0.0,
+                features={"max_components_rows": 10, "max_schedule_rows": 20},
+                spend_inflation_timing=timing,
+                spend_inflation_offset=offset,
+            )
+            components = [
+                Component(
+                    id="roof",
+                    name="Roof",
+                    category="Building",
+                    base_cost=1000.0,
+                    spend_year=2026,
+                    recurring=False,
+                    interval_years=None,
+                    include=True,
+                    row_index=2,
+                )
+            ]
+            schedule_items = expand_schedule(components, inputs)
+            contributions = {2025: 0.0, 2026: 0.0}
+
+            wb = excel.build_workbook(
+                inputs=inputs,
+                components=components,
+                schedule_items=schedule_items,
+                contributions=contributions,
+                scenario="timing-test",
+            )
+
+            schedule_ws = wb["Schedule"]
+            expected = (
+                "=Components!$D$2*(1+Inputs!$B$4)^(A2-Inputs!$B$2" + suffix + ")"
+            )
+            self.assertEqual(schedule_ws["D2"].value, expected)
 
     def test_forecast_audit_enabled(self) -> None:
         inputs = Inputs(
