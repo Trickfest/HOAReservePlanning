@@ -8,7 +8,7 @@ Backlog for features, improvements, research, fixes, etc.
 
 ### Features
 
-* Charts
+* Add charts
 
 ### Research
 
