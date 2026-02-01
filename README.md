@@ -1,6 +1,6 @@
 # HOA Reserve Planning Model
 
-This project generates a .xlsx reserve planning workbook from simple text files. The .xlsx also works with Apple Numbers.
+This project is a command-line reserve planning tool that turns simple text inputs into a multi-sheet .xlsx workbook for HOA reserve forecasting. It generates the Schedule, Forecast, Checks, and Dashboard tabs from your inputs and works in both Excel and Apple Numbers.
 
 ## Quick start
 
