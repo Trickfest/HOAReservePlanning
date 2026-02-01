@@ -264,3 +264,8 @@ Requires a rebuild to be correct:
 Rule of thumb: edit **contributions and costs** in the workbook; edit **structure/timing/assumptions** in the source files and rebuild.
 
 Note: if `FEATURES.enable_audit` is enabled, changing contributions or component costs in the workbook will cause audit flags to show `FAIL` because expected values were generated at build time. Rebuild to clear audit failures.
+
+### The funding sheet explained
+The Funding sheet is a per‑component, per‑year breakdown of the **target funded amount** for each component. Each row is a component, each column is a forecast year, and each cell is the **inflated cost × funded fraction** for that component in that year. Think of it as the linear‑path goal for that component in that year: if you’re funding steadily toward replacement, this is the amount you’d ideally have set aside for that component at that point in time.
+
+The Forecast sheet’s `percent_funded` uses the Funding sheet as its source of truth: for each year, it sums the Funding column for that year to get the fully funded balance (FFB), then divides the beginning‑of‑year reserve balance by that FFB. This approach was chosen to improve formula compatibility across Excel, Numbers, and Google Sheets on different platforms.

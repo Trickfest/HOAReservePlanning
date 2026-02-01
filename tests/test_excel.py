@@ -13,49 +13,11 @@ def _expected_percent_funded_formula(
     max_components_rows: int,
     spend_inflation_offset: float,
 ) -> str:
-    start_year_cell = f"Inputs!$B${excel.INPUT_ROWS['starting_year']}"
-    inflation_cell = f"Inputs!$B${excel.INPUT_ROWS['inflation_rate']}"
-    year_cell = f"A{row}"
-    inflation_offset = excel._format_inflation_offset(spend_inflation_offset)
-
     components_end_row = 1 + max_components_rows
-    base_cost_range = f"Components!$D$2:$D${components_end_row}"
-    spend_year_range = f"Components!$E$2:$E${components_end_row}"
-    recurring_range = f"Components!$F$2:$F${components_end_row}"
-    interval_range = f"Components!$G$2:$G${components_end_row}"
-    include_range = f"Components!$H$2:$H${components_end_row}"
-
-    inflation_factor = f"(1+{inflation_cell})^({year_cell}-{start_year_cell}{inflation_offset})"
-
-    years_to_next = (
-        f"IF({year_cell}<={spend_year_range},"
-        f"{spend_year_range}-{year_cell},"
-        f"{spend_year_range}+CEILING(({year_cell}-{spend_year_range})/"
-        f"IF({interval_range}>0,{interval_range},1),1)"
-        f"*{interval_range}-{year_cell})"
+    funding_col = get_column_letter(row + 1)
+    fully_funded = (
+        f"SUM(Funding!${funding_col}$2:${funding_col}${components_end_row})"
     )
-    recurring_age = f"({interval_range}-({years_to_next}))"
-    recurring_fraction = (
-        f"IF({interval_range}<=0,0,"
-        f"IF({recurring_age}<=0,0,({recurring_age})/{interval_range}))"
-    )
-
-    nonrecurring_fraction = (
-        f"IF({year_cell}>{spend_year_range},0,"
-        f"IF({spend_year_range}-{start_year_cell}<=0,1,"
-        f"({year_cell}-{start_year_cell})/({spend_year_range}-{start_year_cell})))"
-    )
-
-    sum_recurring = (
-        f"SUMPRODUCT(--({include_range}=\"Y\"),--({recurring_range}=\"Y\"),"
-        f"{base_cost_range},{recurring_fraction})"
-    )
-    sum_nonrecurring = (
-        f"SUMPRODUCT(--({include_range}=\"Y\"),--({recurring_range}<>\"Y\"),"
-        f"{base_cost_range},{nonrecurring_fraction})"
-    )
-
-    fully_funded = f"{inflation_factor}*({sum_recurring}+{sum_nonrecurring})"
     return f"=IF({fully_funded}=0,\"\",B{row}/({fully_funded}))"
 
 

@@ -12,15 +12,11 @@ Backlog for features, improvements, research, fixes, etc.
 
 ### Research
 
-* Test with Excel on Mac
-
 * Test with Excel on iPad
 
 * Test with Numbers on iPad
 
-* Test with Excel on Windows
-
-* Test with Google Sheets
+* Test with Excel on Windows (don't currently have access to this platform)
 
 ### Bugs
 

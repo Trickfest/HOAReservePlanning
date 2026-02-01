@@ -77,6 +77,9 @@ def build_workbook(
     schedule_ws = wb.create_sheet("Schedule")
     _write_schedule_sheet(schedule_ws, inputs, schedule_items)
 
+    funding_ws = wb.create_sheet("Funding")
+    _write_funding_sheet(funding_ws, inputs)
+
     forecast_ws = wb.create_sheet("Forecast")
     _write_forecast_sheet(forecast_ws, inputs, components, schedule_items, contributions)
 
@@ -274,6 +277,74 @@ def _write_components_sheet(ws, inputs: Inputs, components: List[Component]) -> 
         ws.column_dimensions[chr(64 + idx)].width = width
 
 
+def _write_funding_sheet(ws, inputs: Inputs) -> None:
+    start_year = inputs.starting_year
+    forecast_years = inputs.forecast_years
+    max_components_rows = int(inputs.features.get("max_components_rows", 500))
+    components_end_row = 1 + max_components_rows
+
+    ws.cell(row=1, column=1, value="component_id")
+    ws.cell(row=1, column=2, value="component_name")
+    for offset in range(forecast_years):
+        ws.cell(row=1, column=3 + offset, value=start_year + offset)
+
+    start_year_cell = f"Inputs!$B${INPUT_ROWS['starting_year']}"
+    inflation_cell = f"Inputs!$B${INPUT_ROWS['inflation_rate']}"
+    inflation_offset = _format_inflation_offset(inputs.spend_inflation_offset)
+
+    for row in range(2, components_end_row + 1):
+        ws.cell(row=row, column=1, value=f"=Components!$A{row}")
+        ws.cell(row=row, column=2, value=f"=Components!$B{row}")
+
+        base_cost_cell = f"Components!$D{row}"
+        spend_year_cell = f"Components!$E{row}"
+        recurring_cell = f"Components!$F{row}"
+        interval_cell = f"Components!$G{row}"
+        include_cell = f"Components!$H{row}"
+        id_cell = f"Components!$A{row}"
+
+        for offset in range(forecast_years):
+            col = 3 + offset
+            year_cell = f"{get_column_letter(col)}$1"
+
+            inflated_cost = (
+                f"{base_cost_cell}*(1+{inflation_cell})^"
+                f"({year_cell}-{start_year_cell}{inflation_offset})"
+            )
+
+            delta = f"({year_cell}-{spend_year_cell})"
+            recurring_age = (
+                f"IF({interval_cell}<=0,0,"
+                f"IF({delta}>=0,"
+                f"IF(MOD({delta},{interval_cell})=0,{interval_cell},"
+                f"MOD({delta},{interval_cell})),"
+                f"{interval_cell}+{delta}))"
+            )
+            recurring_fraction = (
+                f"IF({interval_cell}<=0,0,"
+                f"IF({recurring_age}<=0,0,({recurring_age})/{interval_cell}))"
+            )
+
+            nonrecurring_fraction = (
+                f"IF({year_cell}>{spend_year_cell},0,"
+                f"IF({spend_year_cell}-{start_year_cell}<=0,1,"
+                f"({year_cell}-{start_year_cell})/"
+                f"({spend_year_cell}-{start_year_cell})))"
+            )
+
+            funded = (
+                f"=IF({id_cell}=\"\",0,"
+                f"IF({include_cell}<>\"Y\",0,"
+                f"{inflated_cost}*IF({recurring_cell}=\"Y\","
+                f"{recurring_fraction},{nonrecurring_fraction})))"
+            )
+            ws.cell(row=row, column=col, value=funded).number_format = "#,##0"
+
+    ws.sheet_view.showGridLines = False
+    ws.column_dimensions["A"].width = 16
+    ws.column_dimensions["B"].width = 32
+
+
 def _write_schedule_sheet(ws, inputs: Inputs, schedule_items: List[ScheduleItem]) -> None:
     headers = ["year", "component_id", "component_name", "nominal_expense"]
     ws.append(headers)
@@ -416,16 +487,6 @@ def _write_forecast_sheet(
     schedule_end_row = 1 + max_schedule_rows
     components_end_row = 1 + max_components_rows
 
-    start_year_cell = f"Inputs!$B${INPUT_ROWS['starting_year']}"
-    inflation_cell = f"Inputs!$B${INPUT_ROWS['inflation_rate']}"
-    inflation_offset = _format_inflation_offset(inputs.spend_inflation_offset)
-
-    base_cost_range = f"Components!$D$2:$D${components_end_row}"
-    spend_year_range = f"Components!$E$2:$E${components_end_row}"
-    recurring_range = f"Components!$F$2:$F${components_end_row}"
-    interval_range = f"Components!$G$2:$G${components_end_row}"
-    include_range = f"Components!$H$2:$H${components_end_row}"
-
     expected_rows: List[List[float | None]] = []
     audit_columns: List[tuple[int, int, int, str, str]] = []
     if enable_audit:
@@ -485,39 +546,10 @@ def _write_forecast_sheet(
         end_formula = f"=B{row}+C{row}+E{row}-G{row}"
         ws.cell(row=row, column=8, value=end_formula)
 
-        year_cell = f"A{row}"
-        inflation_factor = f"(1+{inflation_cell})^({year_cell}-{start_year_cell}{inflation_offset})"
-
-        years_to_next = (
-            f"IF({year_cell}<={spend_year_range},"
-            f"{spend_year_range}-{year_cell},"
-            f"{spend_year_range}+CEILING(({year_cell}-{spend_year_range})/"
-            f"IF({interval_range}>0,{interval_range},1),1)"
-            f"*{interval_range}-{year_cell})"
+        funding_col_letter = get_column_letter(3 + offset)
+        fully_funded = (
+            f"SUM(Funding!${funding_col_letter}$2:${funding_col_letter}${components_end_row})"
         )
-        # Recurring items "reset" after each replacement; age is based on the next spend year.
-        recurring_age = f"({interval_range}-({years_to_next}))"
-        recurring_fraction = (
-            f"IF({interval_range}<=0,0,"
-            f"IF({recurring_age}<=0,0,({recurring_age})/{interval_range}))"
-        )
-
-        nonrecurring_fraction = (
-            f"IF({year_cell}>{spend_year_range},0,"
-            f"IF({spend_year_range}-{start_year_cell}<=0,1,"
-            f"({year_cell}-{start_year_cell})/({spend_year_range}-{start_year_cell})))"
-        )
-
-        sum_recurring = (
-            f"SUMPRODUCT(--({include_range}=\"Y\"),--({recurring_range}=\"Y\"),"
-            f"{base_cost_range},{recurring_fraction})"
-        )
-        sum_nonrecurring = (
-            f"SUMPRODUCT(--({include_range}=\"Y\"),--({recurring_range}<>\"Y\"),"
-            f"{base_cost_range},{nonrecurring_fraction})"
-        )
-
-        fully_funded = f"{inflation_factor}*({sum_recurring}+{sum_nonrecurring})"
         percent_funded_formula = f"=IF({fully_funded}=0,\"\",B{row}/({fully_funded}))"
         ws.cell(row=row, column=9, value=percent_funded_formula)
 
