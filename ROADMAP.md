@@ -18,6 +18,10 @@ Backlog for features, improvements, research, fixes, etc.
 
 * Test with Numbers on iPad
 
+* Test with Excel on Windows
+
+* Test with Google Sheets
+
 ### Bugs
 
 * In the spreadsheet, the contributions column is in a different color. It probably shouldn't be.  Or maybe it should.
