@@ -2,6 +2,12 @@
 
 This project is a command-line reserve planning tool that turns simple text inputs into a multi-sheet .xlsx workbook for HOA reserve forecasting. It generates the Schedule, Forecast, Checks, and Dashboard tabs from your inputs and works in both Excel and Apple Numbers.
 
+This tool is designed for HOAs (and similar associations) that want a transparent, repeatable reserve study workflow. You describe your components, timing, and funding assumptions in plain text files, and the app generates a spreadsheet with formulas so you can explore scenarios without rebuilding the model by hand.
+
+The generated workbook separates **timing (Schedule)** from **cash flow (Forecast)** and includes diagnostics (Checks) plus optional audit flags to help spot inconsistencies. The intent is to make the math auditable and the inputs version-controlled, while still producing a familiar spreadsheet output.
+
+If you’re new to reserve planning, the Forecast tab provides funding metrics like percent funded and 5‑year coverage to help assess adequacy. The app doesn’t replace professional judgement — it makes the assumptions explicit and easy to revise.
+
 ## Quick start
 
 ```bash
