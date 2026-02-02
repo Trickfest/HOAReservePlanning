@@ -48,8 +48,6 @@ Backlog for features, improvements, research, fixes, etc.
 
 ### Research
 
-* Test with Excel on iPad
-
 * Test with Excel on Windows (don't currently have access to this platform)
 
 ### Bugs
