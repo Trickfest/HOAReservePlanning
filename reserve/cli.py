@@ -171,6 +171,12 @@ def main(argv: list[str] | None = None) -> int:
                 sys.stdout.write(
                     f"OK fixture {fixture.name} ({fixture.scenario})\n"
                 )
+                if result.warnings:
+                    sys.stderr.write(
+                        f"WARN fixture {fixture.name} ({fixture.scenario})\n"
+                    )
+                    for warning in result.warnings:
+                        sys.stderr.write(f" - {warning}\n")
         total = len(fixtures)
         passed_count = total - failed_count
         sys.stdout.write(

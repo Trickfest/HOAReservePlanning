@@ -9,12 +9,11 @@ from reserve.schedule import expand_schedule
 
 def _expected_percent_funded_formula(
     row: int,
-    forecast_years: int,
     max_components_rows: int,
-    spend_inflation_offset: float,
 ) -> str:
     components_end_row = 1 + max_components_rows
-    funding_col = get_column_letter(row + 1)
+    # Forecast rows start at 2, Funding years start at column C (3).
+    funding_col = get_column_letter(3 + (row - 2))
     fully_funded = (
         f"SUM(Funding!${funding_col}$2:${funding_col}${components_end_row})"
     )
@@ -113,9 +112,7 @@ class ExcelTests(unittest.TestCase):
             forecast_ws["I2"].value,
             _expected_percent_funded_formula(
                 2,
-                inputs.forecast_years,
                 inputs.features["max_components_rows"],
-                inputs.spend_inflation_offset,
             ),
         )
         self.assertEqual(

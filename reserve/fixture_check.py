@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
@@ -26,6 +26,7 @@ class Fixture:
 class FixtureRunResult:
     issues: List[str]
     output_path: Path | None = None
+    warnings: List[str] = field(default_factory=list)
 
 
 def load_fixture(expected_path: Path) -> Fixture:
@@ -49,7 +50,11 @@ def find_fixtures(fixtures_root: Path | None = None) -> List[Fixture]:
 
 def run_fixture(fixture: Fixture) -> FixtureRunResult:
     issues: List[str] = []
+    warnings: List[str] = []
     expected = _load_expected(fixture.expected_path)
+    doc_issues, doc_warnings = _check_expected_docs(fixture.expected_path)
+    issues.extend(doc_issues)
+    warnings.extend(doc_warnings)
 
     expected_validation = expected.get("expect", {}).get("validation", {})
     expected_errors = _as_list(expected_validation.get("errors", []))
@@ -66,11 +71,11 @@ def run_fixture(fixture: Fixture) -> FixtureRunResult:
     )
 
     if expected_errors:
-        return FixtureRunResult(issues)
+        return FixtureRunResult(issues, warnings=warnings)
 
     if result.errors:
         issues.append("Validation produced errors but none were expected.")
-        return FixtureRunResult(issues)
+        return FixtureRunResult(issues, warnings=warnings)
 
     try:
         output_path, build_result = build_workbook(
@@ -79,7 +84,7 @@ def run_fixture(fixture: Fixture) -> FixtureRunResult:
     except ValidationError as exc:
         issues.append(f"Build failed: {exc}")
         issues.extend(exc.result.errors)
-        return FixtureRunResult(issues)
+        return FixtureRunResult(issues, warnings=warnings)
 
     issues.extend(
         _compare_lists(
@@ -97,7 +102,7 @@ def run_fixture(fixture: Fixture) -> FixtureRunResult:
             _check_model(inputs, components, contributions, model_expect)
         )
 
-    return FixtureRunResult(issues, output_path)
+    return FixtureRunResult(issues, output_path, warnings=warnings)
 
 
 def _load_expected(path: Path) -> Dict[str, Any]:
@@ -117,6 +122,20 @@ def _compare_lists(label: str, expected: List[str], actual: List[str]) -> List[s
     return [
         f"Mismatch in {label}. expected={sorted(expected)} actual={sorted(actual)}"
     ]
+
+
+def _check_expected_docs(expected_path: Path) -> tuple[List[str], List[str]]:
+    issues: List[str] = []
+    warnings: List[str] = []
+    md_path = expected_path.parent / "expected_values.md"
+    if not md_path.exists():
+        issues.append(f"Missing {md_path}")
+        return issues, warnings
+    if not md_path.read_text().strip():
+        issues.append(f"{md_path} is empty")
+    if md_path.stat().st_mtime < expected_path.stat().st_mtime:
+        warnings.append(f"{md_path.name} is older than expected_values.yaml")
+    return issues, warnings
 
 
 def _check_workbook(path: Path, expect: Dict[str, Any]) -> List[str]:

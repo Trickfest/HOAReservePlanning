@@ -39,6 +39,9 @@ expect:
     - sheet: Forecast
       cell: F3
       equals: =F2+E3
+    - sheet: Funding
+      cell: C2
+      equals: =IF(Components!$A2="",0,IF(Components!$H2<>"Y",0,Components!$D2*(1+Inputs!$B$4)^(C$1-Inputs!$B$2+1)*IF(Components!$F2="Y",IF(Components!$G2<=0,0,IF(IF(Components!$G2<=0,0,IF((C$1-Components!$E2)>=0,IF(MOD((C$1-Components!$E2),Components!$G2)=0,Components!$G2,MOD((C$1-Components!$E2),Components!$G2)),Components!$G2+(C$1-Components!$E2)))<=0,0,(IF(Components!$G2<=0,0,IF((C$1-Components!$E2)>=0,IF(MOD((C$1-Components!$E2),Components!$G2)=0,Components!$G2,MOD((C$1-Components!$E2),Components!$G2)),Components!$G2+(C$1-Components!$E2))))/Components!$G2)),IF(C$1>Components!$E2,0,IF(Components!$E2-Inputs!$B$2<=0,1,(C$1-Inputs!$B$2)/(Components!$E2-Inputs!$B$2))))))
   model:
     schedule:
     - year: 2025
