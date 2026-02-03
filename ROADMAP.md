@@ -4,7 +4,7 @@ Backlog for features, improvements, research, fixes, etc.
 
 ### Documentation
 
-* Add some of the documentation currently in the readme to the spreadsheet as well. The spreadsheet should, in general, be self-contained.
+- Add some of the documentation currently in the readme to the spreadsheet as well. The spreadsheet should, in general, be self-contained.
 
 ### Features
 
