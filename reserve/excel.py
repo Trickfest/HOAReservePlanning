@@ -4,6 +4,7 @@ import math
 from typing import Dict, Iterable, List
 
 from openpyxl import Workbook
+from openpyxl.chart import BarChart, LineChart, Reference
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
@@ -83,6 +84,8 @@ def build_workbook(
     forecast_ws = wb.create_sheet("Forecast")
     _write_forecast_sheet(forecast_ws, inputs, components, schedule_items, contributions)
 
+    dashboard_enabled = bool(inputs.features.get("enable_dashboard", True))
+
     if inputs.features.get("enable_checks", True):
         checks_ws = wb.create_sheet("Checks")
         _write_checks_sheet(checks_ws, inputs)
@@ -90,12 +93,21 @@ def build_workbook(
         checks_ws = wb.create_sheet("Checks")
         checks_ws["A1"] = "Checks disabled by FEATURES.enable_checks"
 
-    if inputs.features.get("enable_dashboard", True):
+    if dashboard_enabled:
         dashboard_ws = wb.create_sheet("Dashboard")
         _write_dashboard_sheet(dashboard_ws, inputs)
     else:
         dashboard_ws = wb.create_sheet("Dashboard")
         dashboard_ws["A1"] = "Dashboard disabled by FEATURES.enable_dashboard"
+
+    balance_chart_ws = wb.create_sheet("Balance Chart")
+    cash_flow_chart_ws = wb.create_sheet("Cash Flow Chart")
+    if dashboard_enabled:
+        _write_balance_chart_sheet(balance_chart_ws, inputs, forecast_ws)
+        _write_cash_flow_chart_sheet(cash_flow_chart_ws, inputs, forecast_ws)
+    else:
+        balance_chart_ws["A1"] = "Charts disabled by FEATURES.enable_dashboard"
+        cash_flow_chart_ws["A1"] = "Charts disabled by FEATURES.enable_dashboard"
 
     return wb
 
@@ -120,7 +132,10 @@ def _write_readme_sheet(ws, scenario: str) -> None:
         "",
         "Edit source files and rebuild for versioned changes.",
         "",
-        "Sheets: Inputs, Components, Schedule, Forecast, Checks, Dashboard",
+        (
+            "Sheets: Inputs, Components, Schedule, Forecast, Checks, Dashboard, "
+            "Balance Chart, Cash Flow Chart"
+        ),
     ]
     ws["A1"] = "\n".join(summary_lines)
     ws["A1"].alignment = Alignment(vertical="top", wrap_text=True)
@@ -686,3 +701,49 @@ def _write_dashboard_sheet(ws, inputs: Inputs) -> None:
     ws.column_dimensions["A"].width = 32
     ws.column_dimensions["B"].width = 18
     ws.freeze_panes = "A2"
+
+
+def _write_balance_chart_sheet(ws, inputs: Inputs, forecast_ws) -> None:
+    end_row = 1 + inputs.forecast_years
+
+    chart = LineChart()
+    chart.title = "End Balance by Year"
+    chart.y_axis.title = "Reserve Balance"
+    chart.x_axis.title = "Year"
+    chart.height = 10
+    chart.width = 22
+
+    values = Reference(forecast_ws, min_col=8, min_row=1, max_row=end_row)
+    chart.add_data(values, titles_from_data=True)
+    categories = Reference(forecast_ws, min_col=1, min_row=2, max_row=end_row)
+    chart.set_categories(categories)
+    chart.legend = None
+
+    ws.add_chart(chart, "A3")
+    ws.column_dimensions["A"].width = 48
+    ws.sheet_view.showGridLines = False
+
+
+def _write_cash_flow_chart_sheet(ws, inputs: Inputs, forecast_ws) -> None:
+    end_row = 1 + inputs.forecast_years
+
+    chart = BarChart()
+    chart.type = "col"
+    chart.grouping = "clustered"
+    chart.overlap = 0
+    chart.title = "Contributions vs Expenses"
+    chart.y_axis.title = "Amount"
+    chart.x_axis.title = "Year"
+    chart.height = 10
+    chart.width = 22
+
+    contributions = Reference(forecast_ws, min_col=3, min_row=1, max_row=end_row)
+    expenses = Reference(forecast_ws, min_col=7, min_row=1, max_row=end_row)
+    chart.add_data(contributions, titles_from_data=True)
+    chart.add_data(expenses, titles_from_data=True)
+    categories = Reference(forecast_ws, min_col=1, min_row=2, max_row=end_row)
+    chart.set_categories(categories)
+
+    ws.add_chart(chart, "A3")
+    ws.column_dimensions["A"].width = 48
+    ws.sheet_view.showGridLines = False

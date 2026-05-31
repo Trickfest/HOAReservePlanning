@@ -257,6 +257,103 @@ class ExcelTests(unittest.TestCase):
         labels = [cell.value for cell in checks_ws["A"] if cell.value]
         self.assertNotIn("Audit summary", labels)
 
+    def test_chart_sheets_enabled(self) -> None:
+        inputs = Inputs(
+            starting_year=2025,
+            forecast_years=3,
+            beginning_reserve_balance=1000.0,
+            inflation_rate=0.0,
+            investment_return_rate=0.0,
+            features={
+                "enable_dashboard": True,
+                "max_components_rows": 10,
+                "max_schedule_rows": 20,
+            },
+        )
+        components = []
+        schedule_items = expand_schedule(components, inputs)
+        contributions = {2025: 100.0, 2026: 110.0, 2027: 120.0}
+
+        wb = excel.build_workbook(
+            inputs=inputs,
+            components=components,
+            schedule_items=schedule_items,
+            contributions=contributions,
+            scenario="charts-on",
+        )
+
+        self.assertIn("Balance Chart", wb.sheetnames)
+        self.assertIn("Cash Flow Chart", wb.sheetnames)
+
+        balance_ws = wb["Balance Chart"]
+        self.assertEqual(len(balance_ws._charts), 1)
+        balance_chart = balance_ws._charts[0]
+        self.assertEqual(len(balance_chart.series), 1)
+        self.assertEqual(
+            balance_chart.series[0].val.numRef.f,
+            "'Forecast'!$H$2:$H$4",
+        )
+        self.assertEqual(
+            balance_chart.series[0].cat.numRef.f,
+            "'Forecast'!$A$2:$A$4",
+        )
+
+        cash_flow_ws = wb["Cash Flow Chart"]
+        self.assertEqual(len(cash_flow_ws._charts), 1)
+        cash_flow_chart = cash_flow_ws._charts[0]
+        self.assertEqual(len(cash_flow_chart.series), 2)
+        self.assertEqual(
+            cash_flow_chart.series[0].val.numRef.f,
+            "'Forecast'!$C$2:$C$4",
+        )
+        self.assertEqual(
+            cash_flow_chart.series[1].val.numRef.f,
+            "'Forecast'!$G$2:$G$4",
+        )
+        self.assertEqual(
+            cash_flow_chart.series[0].cat.numRef.f,
+            "'Forecast'!$A$2:$A$4",
+        )
+
+    def test_chart_sheets_disabled_with_dashboard_toggle(self) -> None:
+        inputs = Inputs(
+            starting_year=2025,
+            forecast_years=2,
+            beginning_reserve_balance=1000.0,
+            inflation_rate=0.0,
+            investment_return_rate=0.0,
+            features={
+                "enable_dashboard": False,
+                "max_components_rows": 10,
+                "max_schedule_rows": 20,
+            },
+        )
+        components = []
+        schedule_items = expand_schedule(components, inputs)
+        contributions = {2025: 0.0, 2026: 0.0}
+
+        wb = excel.build_workbook(
+            inputs=inputs,
+            components=components,
+            schedule_items=schedule_items,
+            contributions=contributions,
+            scenario="charts-off",
+        )
+
+        balance_ws = wb["Balance Chart"]
+        cash_flow_ws = wb["Cash Flow Chart"]
+
+        self.assertEqual(
+            balance_ws["A1"].value,
+            "Charts disabled by FEATURES.enable_dashboard",
+        )
+        self.assertEqual(
+            cash_flow_ws["A1"].value,
+            "Charts disabled by FEATURES.enable_dashboard",
+        )
+        self.assertEqual(len(balance_ws._charts), 0)
+        self.assertEqual(len(cash_flow_ws._charts), 0)
+
 
 if __name__ == "__main__":
     unittest.main()
