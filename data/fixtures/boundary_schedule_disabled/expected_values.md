@@ -1,28 +1,53 @@
-# Boundary Fixture: Schedule Expansion Disabled
+# Fixture Expected Values: Boundary Schedule Disabled
 
-Build:
+- Scenario: `schedule_disabled`
+- Fixture data: `data/fixtures/boundary_schedule_disabled`
+- Machine-readable source: `data/fixtures/boundary_schedule_disabled/expected_values.yaml`
 
-```
+## Commands
+
+```bash
+python -m reserve validate --scenario schedule_disabled --data-dir data/fixtures/boundary_schedule_disabled
 python -m reserve build --scenario schedule_disabled --data-dir data/fixtures/boundary_schedule_disabled
+python -m reserve fixture-check --scenario schedule_disabled --data-dir data/fixtures/boundary_schedule_disabled
 ```
 
-Schedule checks:
-- Only the header row should appear (no schedule items).
+## Validation Expectations
 
-Forecast checks:
-- `H2` (2025 end balance) = 600
-- `H3` (2026 end balance) = 700
-- `H4` (2027 end balance) = 800
+Expected errors:
+- None
 
-Funding metrics (Sheet: Forecast):
-- `I` (percent_funded) = beginning balance / fully funded balance (formula-driven).
-- `J` (coverage_5yr) = beginning balance / sum of expenses for the next 5 years (formula-driven).
+Expected warnings:
+- None
 
-Checks:
-- `B2` (negative balance years) = 0
-- `B3` (zero expense years) = 3
+## Workbook Value Checks
 
-Dashboard:
-- `B2` (lowest reserve balance) = 600
-- `B3` (ending balance final year) = 800
-- `B4` (final forecast year) = 2027
+- `Forecast!C2` expected `100`
+
+## Workbook Formula Checks
+
+- `Forecast!B2` expected `=Inputs!$B$3`
+- `Dashboard!B4` expected `=Forecast!$A$4`
+- `Forecast!G2` expected `=SUMIFS(Schedule!$D$2:$D$51,Schedule!$A$2:$A$51,A2)`
+- `Forecast!D2` expected `=C2`
+- `Forecast!F2` expected `=E2`
+- `Forecast!I2` expected `=IF(SUM(Funding!$C$2:$C$21)=0,"",B2/(SUM(Funding!$C$2:$C$21)))`
+- `Forecast!J2` expected `=IF(SUM(G2:INDEX($G$2:$G$4,MIN(2+4,4)-1))=0,"",B2/SUM(G2:INDEX($G$2:$G$4,MIN(2+4,4)-1)))`
+- `Forecast!D3` expected `=D2+C3`
+- `Forecast!F3` expected `=F2+E3`
+
+## Model Forecast Checks
+
+- year `2025`, end balance `600`
+- year `2027`, end balance `800`
+
+## Model Count Checks
+
+- forecast years: `3`
+- negative balance years: `0`
+- schedule items: `0`
+- zero expense years: `3`
+
+## Source Of Truth
+
+These notes are generated from `expected_values.yaml`. The fixture runner uses the YAML file for assertions; this Markdown file is for human review.

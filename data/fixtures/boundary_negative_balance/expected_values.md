@@ -1,28 +1,58 @@
-# Boundary Fixture: Negative Balances
+# Fixture Expected Values: Boundary Negative Balance
 
-Build:
+- Scenario: `negative_balance`
+- Fixture data: `data/fixtures/boundary_negative_balance`
+- Machine-readable source: `data/fixtures/boundary_negative_balance/expected_values.yaml`
 
-```
+## Commands
+
+```bash
+python -m reserve validate --scenario negative_balance --data-dir data/fixtures/boundary_negative_balance
 python -m reserve build --scenario negative_balance --data-dir data/fixtures/boundary_negative_balance
+python -m reserve fixture-check --scenario negative_balance --data-dir data/fixtures/boundary_negative_balance
 ```
 
-Schedule checks:
-- `A2` = 2025, `B2` = major_repair, `D2` = 2000
+## Validation Expectations
 
-Forecast checks:
-- `H2` (2025 end balance) = -1000
-- `H3` (2026 end balance) = -1000
-- `H4` (2027 end balance) = -1000
+Expected errors:
+- None
 
-Funding metrics (Sheet: Forecast):
-- `I` (percent_funded) = beginning balance / fully funded balance (formula-driven).
-- `J` (coverage_5yr) = beginning balance / sum of expenses for the next 5 years (formula-driven).
+Expected warnings:
+- None
 
-Checks:
-- `B2` (negative balance years) = 3
-- `B3` (zero expense years) = 2
+## Workbook Value Checks
 
-Dashboard:
-- `B2` (lowest reserve balance) = -1000
-- `B3` (ending balance final year) = -1000
-- `B4` (final forecast year) = 2027
+- `Forecast!C2` expected `0`
+
+## Workbook Formula Checks
+
+- `Forecast!B2` expected `=Inputs!$B$3`
+- `Schedule!D2` expected `=Components!$D$2*(1+Inputs!$B$4)^(A2-Inputs!$B$2+1)`
+- `Dashboard!B4` expected `=Forecast!$A$4`
+- `Forecast!G2` expected `=SUMIFS(Schedule!$D$2:$D$51,Schedule!$A$2:$A$51,A2)`
+- `Forecast!D2` expected `=C2`
+- `Forecast!F2` expected `=E2`
+- `Forecast!I2` expected `=IF(SUM(Funding!$C$2:$C$11)=0,"",B2/(SUM(Funding!$C$2:$C$11)))`
+- `Forecast!J2` expected `=IF(SUM(G2:INDEX($G$2:$G$4,MIN(2+4,4)-1))=0,"",B2/SUM(G2:INDEX($G$2:$G$4,MIN(2+4,4)-1)))`
+- `Forecast!D3` expected `=D2+C3`
+- `Forecast!F3` expected `=F2+E3`
+
+## Model Schedule Checks
+
+- year `2025`, component `major_repair`, nominal expense `2000`
+
+## Model Forecast Checks
+
+- year `2025`, end balance `-1000`
+- year `2027`, end balance `-1000`
+
+## Model Count Checks
+
+- forecast years: `3`
+- negative balance years: `3`
+- schedule items: `1`
+- zero expense years: `2`
+
+## Source Of Truth
+
+These notes are generated from `expected_values.yaml`. The fixture runner uses the YAML file for assertions; this Markdown file is for human review.

@@ -1,16 +1,26 @@
-# Boundary Fixture: Recurring Missing Interval
+# Fixture Expected Values: Boundary Missing Interval
 
-Validate (expected to fail):
+- Scenario: `missing_interval`
+- Fixture data: `data/fixtures/boundary_missing_interval`
+- Machine-readable source: `data/fixtures/boundary_missing_interval/expected_values.yaml`
 
-```
+## Commands
+
+```bash
 python -m reserve validate --scenario missing_interval --data-dir data/fixtures/boundary_missing_interval
+python -m reserve fixture-check --scenario missing_interval --data-dir data/fixtures/boundary_missing_interval
 ```
 
-Expected validation error:
+## Validation Expectations
+
+Expected errors:
 - `components.csv row 2: interval_years required for recurring items`
 
-Notes:
-- Build should fail until interval_years is provided.
+Expected warnings:
+- None
 
-Funding metrics:
-- Not applicable because validation fails and no workbook is generated.
+Because validation is expected to fail, fixture-check stops after comparing validation output and does not generate workbook or model checks for this fixture.
+
+## Source Of Truth
+
+These notes are generated from `expected_values.yaml`. The fixture runner uses the YAML file for assertions; this Markdown file is for human review.

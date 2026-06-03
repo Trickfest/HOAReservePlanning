@@ -1,35 +1,61 @@
-# Realistic Fixture Expected Values (Mid Year)
+# Fixture Expected Values: Realistic Mid Year
 
-Build:
+- Scenario: `realistic_mid_year`
+- Fixture data: `data/fixtures/realistic_mid_year`
+- Machine-readable source: `data/fixtures/realistic_mid_year/expected_values.yaml`
 
-```
+## Commands
+
+```bash
+python -m reserve validate --scenario realistic_mid_year --data-dir data/fixtures/realistic_mid_year
 python -m reserve build --scenario realistic_mid_year --data-dir data/fixtures/realistic_mid_year
+python -m reserve fixture-check --scenario realistic_mid_year --data-dir data/fixtures/realistic_mid_year
 ```
 
-Schedule checks (Sheet: Schedule):
-- `A2` = 2025, `B2` = tree_pruning, `D2` = 12178.67 (displayed as 12,179)
-- `A3` = 2026, `B3` = asphalt_resurface, `D3` = 114986.94 (displayed as 114,987)
-- `A9` = 2032, `B9` = asphalt_resurface, `D9` = 137300.42 (displayed as 137,300)
-- `A10` = 2032, `B10` = roof_replace, `D10` = 299564.56 (displayed as 299,565)
-- `A12` = 2034, `B12` = exterior_paint, `D12` = 50319.61 (displayed as 50,320)
-- `A13` = 2034, `B13` = tree_pruning, `D13` = 15890.40 (displayed as 15,890)
+## Validation Expectations
 
-Forecast checks (Sheet: Forecast):
-- `H2` (2025 end balance) = 281421.33 (displayed as 281,421)
-- `H3` (2026 end balance) = 284262.82 (displayed as 284,263)
-- `H5` (2028 end balance) = 474172.22 (displayed as 474,172)
-- `H9` (2032 end balance) = 508418.43 (displayed as 508,418)
-- `H11` (2034 end balance) = 653545.28 (displayed as 653,545)
+Expected errors:
+- None
 
-Funding metrics (Sheet: Forecast):
-- `I` (percent_funded) = beginning balance / fully funded balance (formula-driven).
-- `J` (coverage_5yr) = beginning balance / sum of expenses for the next 5 years (formula-driven).
+Expected warnings:
+- None
 
-Checks (Sheet: Checks):
-- `B2` (negative balance years) = 0
-- `B3` (zero expense years) = 0
+## Workbook Value Checks
 
-Dashboard:
-- `B2` (lowest reserve balance) = 281421.33 (displayed as 281,421)
-- `B3` (ending balance final year) = 653545.28 (displayed as 653,545)
-- `B4` (final forecast year) = 2034
+- `Forecast!C2` expected `110000`
+
+## Workbook Formula Checks
+
+- `Forecast!B2` expected `=Inputs!$B$3`
+- `Schedule!D2` expected `=Components!$D$7*(1+Inputs!$B$4)^(A2-Inputs!$B$2+0.5)`
+- `Dashboard!B4` expected `=Forecast!$A$11`
+- `Forecast!G2` expected `=SUMIFS(Schedule!$D$2:$D$501,Schedule!$A$2:$A$501,A2)`
+- `Forecast!D2` expected `=C2`
+- `Forecast!F2` expected `=E2`
+- `Forecast!I2` expected `=IF(SUM(Funding!$C$2:$C$101)=0,"",B2/(SUM(Funding!$C$2:$C$101)))`
+- `Forecast!J2` expected `=IF(SUM(G2:INDEX($G$2:$G$11,MIN(2+4,11)-1))=0,"",B2/SUM(G2:INDEX($G$2:$G$11,MIN(2+4,11)-1)))`
+- `Forecast!D3` expected `=D2+C3`
+- `Forecast!F3` expected `=F2+E3`
+
+## Model Schedule Checks
+
+- year `2025`, component `tree_pruning`, nominal expense `12178.669878110664`
+- year `2032`, component `roof_replace`, nominal expense `299564.5559745079`, tolerance `0.01`
+- year `2034`, component `tree_pruning`, nominal expense `15890.401871667773`, tolerance `0.01`
+
+## Model Forecast Checks
+
+- year `2025`, end balance `281421.33012188936`
+- year `2032`, end balance `508418.4318639111`, tolerance `0.01`
+- year `2034`, end balance `653545.277304785`, tolerance `0.01`
+
+## Model Count Checks
+
+- forecast years: `10`
+- negative balance years: `0`
+- schedule items: `12`
+- zero expense years: `0`
+
+## Source Of Truth
+
+These notes are generated from `expected_values.yaml`. The fixture runner uses the YAML file for assertions; this Markdown file is for human review.
