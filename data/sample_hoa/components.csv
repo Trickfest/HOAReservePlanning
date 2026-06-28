@@ -1,0 +1,31 @@
+id,name,category,base_cost,spend_year,recurring,interval_years,include
+roof_membrane,Clubhouse roof membrane,Building Envelope,185000,2035,Y,24,Y
+roof_gutters,Roof gutters and downspouts,Building Envelope,42000,2032,Y,22,Y
+siding_paint,Exterior siding and paint,Building Envelope,125000,2030,Y,12,Y
+masonry_repairs,Masonry and stone repairs,Building Envelope,56000,2038,Y,18,Y
+asphalt_overlay,Private road asphalt overlay,Pavement,240000,2034,Y,18,Y
+asphalt_sealcoat,Private road sealcoat,Pavement,36000,2028,Y,5,Y
+concrete_walkways,Concrete walks and aprons,Pavement,78000,2031,Y,20,Y
+storm_drainage,Storm drainage repairs,Site,65000,2037,Y,25,Y
+retaining_walls,Retaining wall repairs,Site,98000,2042,Y,30,Y
+fencing_replacement,Perimeter fence replacement,Site,72000,2036,Y,20,Y
+entry_monument,Entry monument refurbishment,Site,28000,2033,Y,15,Y
+irrigation_controls,Irrigation controls and valves,Landscape,34000,2029,Y,12,Y
+landscape_renewal,Landscape renewal allowance,Landscape,85000,2032,Y,15,Y
+clubhouse_hvac,Clubhouse HVAC equipment,Mechanical,64000,2031,Y,15,Y
+clubhouse_flooring,Clubhouse flooring and finishes,Interior,48000,2030,Y,12,Y
+clubhouse_kitchen,Clubhouse kitchen refresh,Interior,39000,2036,Y,18,Y
+fitness_equipment,Fitness room equipment,Amenities,52000,2028,Y,10,Y
+pool_resurface,Pool resurfacing,Amenities,115000,2033,Y,12,Y
+pool_deck,Pool deck coating,Amenities,74000,2031,Y,10,Y
+pool_equipment,Pool pumps and filtration,Amenities,58000,2029,Y,10,Y
+playground_surface,Playground surface and equipment,Amenities,69000,2030,Y,15,Y
+mail_kiosks,Mail kiosk replacement,Site,46000,2035,Y,20,Y
+security_cameras,Security camera system,Technology,32000,2027,Y,8,Y
+access_controls,Access control hardware,Technology,26000,2028,Y,8,Y
+lighting_retrofit,Common area lighting,Electrical,57000,2032,Y,15,Y
+generator_service,Emergency generator renewal,Mechanical,88000,2040,Y,25,Y
+garage_doors,Maintenance garage doors,Building Envelope,31000,2034,Y,18,Y
+reserve_study,Reserve study updates,Professional,9000,2028,Y,3,Y
+insurance_deductible,Insurance deductible reserve,Risk,50000,2026,N,,Y
+contingency,General contingency allowance,Contingency,45000,2039,Y,10,Y

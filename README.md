@@ -111,6 +111,10 @@ python -m reserve build --scenario recommended --inputs path/to/inputs.yaml --co
 - Reserve components: `data/components.csv`
 - Contributions (one file per scenario): `data/contributions/<scenario>.csv`
 
+Additional synthetic sample data lives under `data/sample_hoa/`. It provides a
+larger realistic YAML/CSV plan and is not part of the Python fixture snapshot set
+under `data/fixtures/`.
+
 You can override `inputs.yaml` or `components.csv` at runtime with `--inputs` and `--components` on `build` or `validate`. Contributions still come from `--data-dir` (or `data/` by default).
 
 ## Input settings
