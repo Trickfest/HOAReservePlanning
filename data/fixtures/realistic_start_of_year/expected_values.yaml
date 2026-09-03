@@ -54,12 +54,12 @@ expect:
       tolerance: 0.01
     forecast:
     - year: 2025
-      end_balance: 281600.0
+      end_balance: 282580.0
     - year: 2032
-      end_balance: 518883.4112274243
+      end_balance: 521963.2584538943
       tolerance: 0.01
     - year: 2034
-      end_balance: 666462.5002837047
+      end_balance: 670932.935330551
       tolerance: 0.01
     counts:
       schedule_items: 12

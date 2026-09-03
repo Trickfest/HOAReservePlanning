@@ -105,6 +105,10 @@ class ExcelTests(unittest.TestCase):
             "=F2+E3",
         )
         self.assertEqual(
+            forecast_ws["E2"].value,
+            "=(B2+C2/2-G2/2)*Inputs!$B$5",
+        )
+        self.assertEqual(
             forecast_ws["G2"].value,
             _expected_expenses_formula(2, inputs.features["max_schedule_rows"]),
         )

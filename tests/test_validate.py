@@ -508,8 +508,10 @@ class ScheduleAndForecastTests(unittest.TestCase):
         expenses = expenses_by_year(schedule_items)
         contributions = {2025: -100.0, 2026: -100.0}
         rows = compute_forecast(inputs, contributions, expenses)
-        self.assertAlmostEqual(rows[0].end_balance, 950.0, places=2)
-        self.assertAlmostEqual(rows[1].end_balance, 897.5, places=2)
+        self.assertAlmostEqual(rows[0].interest, 47.5, places=2)
+        self.assertAlmostEqual(rows[0].end_balance, 947.5, places=2)
+        self.assertAlmostEqual(rows[1].interest, 44.875, places=3)
+        self.assertAlmostEqual(rows[1].end_balance, 892.375, places=3)
 
 
 class CliTests(unittest.TestCase):

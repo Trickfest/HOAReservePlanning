@@ -148,7 +148,7 @@ You can override `inputs.yaml` or `components.csv` at runtime with `--inputs` an
 - Duplicate contribution years are reported as warnings; the last value wins.
 - If expanded schedule rows exceed `FEATURES.max_schedule_rows`, validation fails so formulas stay in-bounds.
 - Funding metric formulas return blank when the denominator is zero (no fully funded target or no expenses in the 5-year window).
-- Interest is calculated on the beginning-of-year balance only; contributions made in the same year do not earn interest until the following year (worst-case assumption).
+- Interest is calculated on the average in-year balance: beginning balance plus half of current-year contributions minus half of current-year spending. This treats contributions and expenditures as occurring evenly throughout the year.
 
 
 ## How to add a new component

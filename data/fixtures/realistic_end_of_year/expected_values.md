@@ -46,9 +46,9 @@ Expected warnings:
 
 ## Model Forecast Checks
 
-- year `2025`, end balance `281240.0`
-- year `2032`, end balance `497797.6377847882`, tolerance `0.01`
-- year `2034`, end balance `640435.7277712668`, tolerance `0.01`
+- year `2025`, end balance `282216.4`
+- year `2032`, end balance `500666.62727683206`, tolerance `0.01`
+- year `2034`, end balance `644645.8950929891`, tolerance `0.01`
 
 ## Model Count Checks
 

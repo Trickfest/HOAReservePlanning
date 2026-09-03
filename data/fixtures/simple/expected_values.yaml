@@ -58,9 +58,9 @@ expect:
       nominal_expense: 200
     forecast:
     - year: 2025
-      end_balance: 1400
+      end_balance: 1415.0
     - year: 2029
-      end_balance: 2350.84
+      end_balance: 2387.8565
       tolerance: 0.01
     counts:
       schedule_items: 3

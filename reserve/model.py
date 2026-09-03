@@ -218,8 +218,13 @@ def compute_forecast(
 
     for year in range(start_year, end_year + 1):
         contribution = contributions.get(year, 0.0)
-        interest = begin_balance * inputs.investment_return_rate
         expenses = schedule_expenses.get(year, 0.0)
+        # Treat contributions and expenditures as occurring evenly through
+        # the year.
+        average_in_year_balance = (
+            begin_balance + contribution / 2 - expenses / 2
+        )
+        interest = average_in_year_balance * inputs.investment_return_rate
         end_balance = begin_balance + contribution + interest - expenses
         rows.append(
             ForecastRow(

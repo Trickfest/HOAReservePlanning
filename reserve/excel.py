@@ -544,7 +544,10 @@ def _write_forecast_sheet(
         )
         ws.cell(row=row, column=4, value=cumulative_contrib_formula)
 
-        interest_formula = f"=B{row}*Inputs!$B${INPUT_ROWS['investment_return_rate']}"
+        interest_formula = (
+            f"=(B{row}+C{row}/2-G{row}/2)"
+            f"*Inputs!$B${INPUT_ROWS['investment_return_rate']}"
+        )
         ws.cell(row=row, column=5, value=interest_formula)
 
         cumulative_interest_formula = (
